@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,15 +41,24 @@ public class UserJdbcDAOImpl extends JdbcBasedDAO implements IUserDAO {
             preparedStatement.setString(2, user.getPassword());
             preparedStatement.setString(3, user.getScope().name());
             preparedStatement.executeUpdate();
+            return getByLogin(user.getLogin());
         } catch (SQLException e) {
             logger.debug("Error with inserting data into `users`!", e);
+            return null;
         }
-        return getByLogin(user.getLogin());
     }
 
     @Override
     public boolean delete(User user) {
-        return false;
+        try (PreparedStatement preparedStatement = getConnection()
+                .prepareStatement("DELETE FROM users WHERE id = ?")) {
+            preparedStatement.setInt(1, user.getId());
+
+            return preparedStatement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logger.debug("Error with deleting data from `users`!", e);
+            return false;
+        }
     }
 
     @Override
@@ -68,6 +78,25 @@ public class UserJdbcDAOImpl extends JdbcBasedDAO implements IUserDAO {
 
     @Override
     public User getByLogin(String login) {
+        try (PreparedStatement preparedStatement = getConnection()
+                .prepareStatement("SELECT * FROM users WHERE login LIKE ?")) {
+            preparedStatement.setString(1, login);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new User.Builder()
+                            .setId(resultSet.getInt("id"))
+                            .setLogin(resultSet.getString("login"))
+                            .setPassword(resultSet.getString("password"))
+                            .setScope(User.Scope.get(resultSet.getString("scope")))
+                            .build();
+                }
+            } catch (SQLException e) {
+                logger.debug("Error with getting data from `user` by `login`!", e);
+            }
+        } catch (SQLException e) {
+            logger.debug("Error with getting PreparedStatement for getting data from `user` by `login`!", e);
+        }
         return null;
     }
 

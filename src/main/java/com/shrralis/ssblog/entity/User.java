@@ -42,7 +42,20 @@ public class User {
         READER,
         WRITER,
         ADMIN,
-        BANNED,
+        BANNED;
+
+        public static Scope get(String name) {
+            Scope result = null;
+
+            for (Scope s : Scope.values()) {
+                if (s.name().equalsIgnoreCase(name)) {
+                    result = s;
+
+                    break;
+                }
+            }
+            return result;
+        }
     }
 
     public static final class Builder {
