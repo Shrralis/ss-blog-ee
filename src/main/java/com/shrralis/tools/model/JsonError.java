@@ -71,7 +71,14 @@ public class JsonError {
         EMPTY_DESCRIPTION(14, "Empty description"),
         MAX_LENGTH_DESCRIPTION(15, "Maximum description length exceeded (max is 128)"),
         EMPTY_TEXT(16, "Empty text"),
-        MAX_LENGTH_TEXT(17, "Maximum text length exceeded (max is 2048)"),;
+        MAX_LENGTH_TEXT(17, "Maximum text length exceeded (max is 2048)"),
+        BAD_POST_ID(18, "Bad post ID"),
+        NO_ACCESS(19, "No access"),
+        BAD_UPDATE_DATA(20, "Bad data for updating"),
+        BAD_UPDATER_ID(21, "Bad updater ID"),
+        POST_HAVE_NOT_UPDATER(22, "The post doesn't have this updater"),
+        BAD_USER_ID(23, "Bad user ID"),
+        BAD_SCOPE(24, "Bad user scope"),;
 
         private static final ArrayList<Error> lookup = new ArrayList<>();
 

@@ -101,22 +101,24 @@ public class PostServiceImpl implements IPostService {
     @Override
     public JsonResponse delete(Integer postId, Integer userId) {
         if (postId == null || postId < 1) {
-
+            return new JsonResponse(JsonError.Error.BAD_POST_ID);
         }
 
         try {
             Post post = dao.getById(postId);
 
             if (post == null) {
-
+                return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
             }
 
             if (!post.getCreator().getId().equals(userId)) {
-
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
-            return null;
+            dao.delete(post);
+            return new JsonResponse(JsonResponse.OK);
         } catch (ClassNotFoundException | SQLException e) {
-
+            logger.debug("Exception with deleting post!", e);
+            return new JsonResponse(JsonError.Error.DATABASE);
         }
     }
 
@@ -125,19 +127,19 @@ public class PostServiceImpl implements IPostService {
         if (post == null || (TextUtil.isEmpty(post.getTitle()) &&
                 TextUtil.isEmpty(post.getDescription()) &&
                 TextUtil.isEmpty(post.getText()))) {
-
+            return new JsonResponse(JsonError.Error.BAD_UPDATE_DATA);
         }
 
         try {
             Post dbPost = dao.getById(post.getId());
 
             if (dbPost == null) {
-
+                return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
             }
 
             if (!dbPost.getCreator().getId().equals(userId) &&
                     postUpdaterDAO.get(userId, post.getId()) == null) {
-
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
 
             if (!TextUtil.isEmpty(post.getTitle())) {
@@ -153,27 +155,90 @@ public class PostServiceImpl implements IPostService {
             }
             return new JsonResponse(dao.edit(dbPost));
         } catch (ClassNotFoundException | SQLException e) {
-
+            logger.debug("Exception with updating post!", e);
+            return new JsonResponse(JsonError.Error.DATABASE);
         }
     }
 
     @Override
     public JsonResponse get(Integer postId) {
-        return null;
+        if (postId == null || postId < 1) {
+            return new JsonResponse(JsonError.Error.BAD_POST_ID);
+        }
+
+        try {
+            return new JsonResponse(dao.getById(postId));
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.debug("Exception with getting post by `id`!", e);
+            return new JsonResponse(JsonError.Error.DATABASE);
+        }
     }
 
     @Override
     public JsonResponse getAll() {
-        return null;
+        try {
+            return new JsonResponse(dao.getAllPosts());
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.debug("Exception with getting all posts!", e);
+            return new JsonResponse(JsonError.Error.DATABASE);
+        }
     }
 
     @Override
-    public JsonResponse revokeUpdater(Integer postId, Integer updaterId) {
-        return null;
+    public JsonResponse revokeUpdater(Integer postId, Integer updaterId, Integer revokerId) {
+        if (postId == null || postId < 1) {
+            return new JsonResponse(JsonError.Error.BAD_POST_ID);
+        }
+
+        if (updaterId == null || updaterId < 1) {
+            return new JsonResponse(JsonError.Error.BAD_UPDATER_ID);
+        }
+
+        try {
+            Post post = dao.getById(postId);
+
+            if (post == null) {
+                return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
+            }
+
+            if (revokerId == null || revokerId < 1 || !revokerId.equals(post.getCreator().getId())) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
+            }
+
+            PostUpdater postUpdater = postUpdaterDAO.get(updaterId, postId);
+
+            if (postUpdater == null) {
+                return new JsonResponse(JsonError.Error.POST_HAVE_NOT_UPDATER);
+            }
+            postUpdaterDAO.delete(postUpdater);
+            return new JsonResponse(JsonResponse.OK);
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.debug("Exception with revoking post updater!", e);
+            return new JsonResponse(JsonError.Error.DATABASE);
+        }
     }
 
     @Override
-    public JsonResponse setPosted(Integer postId, boolean isPosted) {
-        return null;
+    public JsonResponse setPosted(Integer postId, boolean isPosted, Integer userId) {
+        if (postId == null || postId < 1) {
+            return new JsonResponse(JsonError.Error.BAD_POST_ID);
+        }
+
+        try {
+            Post post = dao.getById(postId);
+
+            if (post == null) {
+                return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
+            }
+
+            if (userId == null || userId < 1 || !userId.equals(post.getCreator().getId())) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
+            }
+            post.setPosted(isPosted);
+            return new JsonResponse(dao.edit(post));
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.debug("Exception with setting post's `is_posted`!", e);
+            return new JsonResponse(JsonError.Error.DATABASE);
+        }
     }
 }

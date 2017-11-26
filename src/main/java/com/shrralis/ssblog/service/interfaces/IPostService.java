@@ -16,7 +16,7 @@ public interface IPostService {
 
     JsonResponse getAll();
 
-    JsonResponse revokeUpdater(Integer postId, Integer updaterId);
+    JsonResponse revokeUpdater(Integer postId, Integer updaterId, Integer revokerId);
 
-    JsonResponse setPosted(Integer postId, boolean isPosted);
+    JsonResponse setPosted(Integer postId, boolean isPosted, Integer userId);
 }

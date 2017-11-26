@@ -4,5 +4,5 @@ import com.shrralis.ssblog.entity.User;
 import com.shrralis.tools.model.JsonResponse;
 
 public interface IAdminService {
-    JsonResponse setUserScope(Integer userId, User.Scope newScope, String adminLogin, String adminPassword);
+    JsonResponse setUserScope(Integer userId, User.Scope newScope);
 }
