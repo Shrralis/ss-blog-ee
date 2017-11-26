@@ -4,18 +4,19 @@ import com.shrralis.ssblog.entity.Post;
 import com.shrralis.ssblog.entity.PostUpdater;
 import com.shrralis.ssblog.entity.User;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface IPostUpdaterDAO {
-    PostUpdater add(PostUpdater postUpdater);
+    PostUpdater add(PostUpdater postUpdater) throws SQLException;
 
-    boolean delete(PostUpdater postUpdater);
+    void delete(PostUpdater postUpdater) throws SQLException;
 
-    PostUpdater get(Integer userId, Integer postId);
+    PostUpdater get(Integer userId, Integer postId) throws ClassNotFoundException, SQLException;
 
-    List<PostUpdater> getAllPostsUpdaters();
+    List<PostUpdater> getAllPostsUpdaters() throws ClassNotFoundException, SQLException;
 
-    List<PostUpdater> getByPost(Post post);
+    List<PostUpdater> getByPost(Post post) throws ClassNotFoundException, SQLException;
 
-    List<PostUpdater> getByUser(User user);
+    List<PostUpdater> getByUser(User user) throws ClassNotFoundException, SQLException;
 }

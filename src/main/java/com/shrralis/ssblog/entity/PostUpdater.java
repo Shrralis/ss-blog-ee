@@ -20,6 +20,14 @@ public class PostUpdater {
         this.post = post;
     }
 
+    @Override
+    public String toString() {
+        return "PostUpdater{" +
+                "user=" + user +
+                ", post=" + post +
+                '}';
+    }
+
     public static final class Builder {
         private PostUpdater postUpdater = new PostUpdater();
 

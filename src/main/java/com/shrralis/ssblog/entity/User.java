@@ -4,7 +4,7 @@ public class User {
     private Integer id;
     private String login;
     private String password;
-    private Scope scope;
+    private Scope scope = Scope.READER;
 
     public Integer getId() {
         return id;
@@ -36,6 +36,16 @@ public class User {
 
     public void setScope(Scope scope) {
         this.scope = scope;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                ", scope=" + scope +
+                '}';
     }
 
     public enum Scope {

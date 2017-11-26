@@ -26,7 +26,7 @@ public class Post {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title = title == null ? null : title.trim();
     }
 
     public String getDescription() {
@@ -34,7 +34,7 @@ public class Post {
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.description = description == null ? null : description.trim();
     }
 
     public String getText() {
@@ -42,7 +42,7 @@ public class Post {
     }
 
     public void setText(String text) {
-        this.text = text;
+        this.text = text == null ? null : text.trim();
     }
 
     public Boolean isPosted() {
@@ -75,6 +75,20 @@ public class Post {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", text='" + text + '\'' +
+                ", isPosted=" + isPosted +
+                ", creator=" + creator +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 
     public static final class Builder {
@@ -118,6 +132,10 @@ public class Post {
         public Builder setUpdatedAt(Date updatedAt) {
             post.setUpdatedAt(updatedAt);
             return this;
+        }
+
+        public Post build() {
+            return post;
         }
     }
 }
