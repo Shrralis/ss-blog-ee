@@ -6,6 +6,7 @@ import java.util.List;
 
 public class JsonResponse {
     public static final int OK = 0;
+    public static final int ERROR = -1;
 
     private Integer result;
     private JsonError error;
@@ -29,6 +30,7 @@ public class JsonResponse {
 
     public JsonResponse(JsonError.Error error) {
         this.error = new JsonError(error);
+        result = ERROR;
     }
 
     public Integer getResult() {

@@ -153,6 +153,7 @@ public class PostServiceImpl implements IPostService {
             if (!TextUtil.isEmpty(post.getText())) {
                 dbPost.setText(post.getText());
             }
+            dbPost.setUpdatedAt(Calendar.getInstance().getTime());
             return new JsonResponse(dao.edit(dbPost));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with updating post!", e);

@@ -9,6 +9,7 @@ import com.shrralis.tools.DateUtil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
     public Post add(Post post) throws ClassNotFoundException, SQLException {
         PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("INSERT INTO posts (title, description, text, is_posted, creator_id, created_at)" +
-                        "VALUES (?, ?, ?, ?, ?, ?)");
+                        "VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 
         preparedStatement.setString(1, post.getTitle());
         preparedStatement.setString(2, post.getDescription());

@@ -30,9 +30,9 @@ public class AuthenticationFilter implements Filter {
 
         HttpSession session = req.getSession(false);
 
-        if (session == null && !(uri.endsWith(".html") || uri.endsWith("/api/signIn"))) {
+        if (session == null && !(uri.endsWith("signIn") || uri.endsWith("signUp"))) {
             logger.trace("Unauthorized access request");
-            res.sendRedirect("signIn.html");
+            res.sendRedirect("/signIn");
         } else {
             chain.doFilter(request, response);
         }

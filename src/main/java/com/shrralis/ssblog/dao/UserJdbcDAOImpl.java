@@ -7,6 +7,7 @@ import com.shrralis.ssblog.entity.User;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,8 @@ public class UserJdbcDAOImpl extends JdbcBasedDAO implements IUserDAO {
     @Override
     public User add(User user) throws SQLException {
         PreparedStatement preparedStatement = getConnection()
-                .prepareStatement("INSERT INTO users (login, password, scope) VALUES (?, ?, ?)");
+                .prepareStatement("INSERT INTO users (login, password, scope) VALUES (?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS);
 
         preparedStatement.setString(1, user.getLogin());
         preparedStatement.setString(2, user.getPassword());

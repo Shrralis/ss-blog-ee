@@ -6,8 +6,8 @@ public class DatabaseConfig {
     public static final String HOST = "localhost";
     public static final String PORT = "5432";
     public static final String DB_NAME = "ss_blog";
-    public static final String USER = "postgres";
-    public static final String PASS = "zolotorig91";
+    public static final String USER = "shrralis";
+    public static final String PASS = "";
 
     private DatabaseConfig() {
     }

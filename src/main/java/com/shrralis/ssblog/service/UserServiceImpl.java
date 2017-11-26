@@ -81,7 +81,7 @@ public class UserServiceImpl implements IUserService {
         }
 
         try {
-            password = SecurityTool.md5(SecurityTool.md5(password));
+            password = SecurityTool.md5(SecurityTool.md5(SecurityTool.md5(password)));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             logger.debug("Exception with getting MD5 of string!", e);
             return new JsonResponse(JsonError.Error.UNEXPECTED);

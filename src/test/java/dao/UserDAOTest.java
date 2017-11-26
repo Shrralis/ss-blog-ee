@@ -7,9 +7,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.FixMethodOrder;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
@@ -92,7 +90,7 @@ public class UserDAOTest {
     @UseDataProvider("dataForDeleteUserByLoginWithoutExceptions")
     public void deleteUserByLoginWithoutExceptions(User userWithLogin) {
         try {
-            dao.delete(dao.getByLogin(userWithLogin.getLogin()));
+            dao.delete(dao.getByLogin(userWithLogin.getLogin(), false));
         } catch (java.sql.SQLException e) {
             e.printStackTrace();
             fail(e.getClass().getName());

@@ -20,20 +20,20 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 
-@WebServlet("/signIn")
-public class SignInServlet extends ServletWithGsonProcessor {
+@WebServlet("/signUp")
+public class SignUpServlet extends ServletWithGsonProcessor {
     private static final int MAX_COOKIE_SESSION_AGE = 30 * 60;                   // 30 minutes
-    private static Logger logger = LoggerFactory.getLogger(SignInServlet.class);
+    private static Logger logger = LoggerFactory.getLogger(SignUpServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        getServletContext().getRequestDispatcher("/signIn.jsp").forward(req, resp);
+        getServletContext().getRequestDispatcher("/signUp.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         IUserService userService;
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/signIn.jsp");
+        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/signUp.jsp");
         String login = req.getParameter("login");
 
         try {
@@ -47,12 +47,13 @@ public class SignInServlet extends ServletWithGsonProcessor {
         }
 
         String password = req.getParameter("password");
-        JsonResponse response = userService.signIn(login, password);
+        JsonResponse response = userService.signUp(login, password);
 
         if (response.getResult().equals(JsonResponse.OK)) {
             User user = (User) response.getData().get(0);
             HttpSession session = req.getSession();
 
+            user.setPassword(password);
             session.setAttribute("user", getGson().toJson(user));
             session.setMaxInactiveInterval(MAX_COOKIE_SESSION_AGE);
 
