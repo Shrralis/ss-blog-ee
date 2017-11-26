@@ -19,6 +19,8 @@ dependencies {
     compile 'org.codehaus.groovy:groovy:2.4.12'     // for configuration on the highest level
     //	For easy JSONing
     compile 'com.google.code.gson:gson:2.8.2'
+    // JSTL for easier JSPing
+    compile 'javax.servlet:jstl:1.2'
     // Tests
     testCompile 'com.tngtech.java:junit-dataprovider:1.13.1'
     testCompile 'junit:junit:4.12'
