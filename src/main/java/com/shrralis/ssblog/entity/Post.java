@@ -1,7 +1,6 @@
 package com.shrralis.ssblog.entity;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class Post {
     private Integer id;
@@ -10,8 +9,8 @@ public class Post {
     private String text = "";
     private Boolean isPosted = false;
     private User creator;
-    private Date createdAt = Calendar.getInstance().getTime();
-    private Date updatedAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
     public Integer getId() {
         return id;
@@ -61,19 +60,19 @@ public class Post {
         this.creator = creator;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
@@ -124,12 +123,12 @@ public class Post {
             return this;
         }
 
-        public Builder setCreatedAt(Date createdAt) {
+        public Builder setCreatedAt(LocalDateTime createdAt) {
             post.setCreatedAt(createdAt);
             return this;
         }
 
-        public Builder setUpdatedAt(Date updatedAt) {
+        public Builder setUpdatedAt(LocalDateTime updatedAt) {
             post.setUpdatedAt(updatedAt);
             return this;
         }

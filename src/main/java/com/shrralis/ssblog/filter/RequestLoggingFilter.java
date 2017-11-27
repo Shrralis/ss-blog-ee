@@ -30,14 +30,14 @@ public class RequestLoggingFilter implements Filter {
             String name = params.nextElement();
             String value = request.getParameter(name);
 
-            logger.trace("%s::Request Params::{%s=%s}", req.getRemoteAddr(), name, value);
+            logger.warn("{}::Request Params::{{}={}}", req.getRemoteAddr(), name, value);
         }
 
         Cookie[] cookies = req.getCookies();
 
         if (cookies != null) {
             Arrays.stream(cookies)
-                    .forEach(c -> logger.trace("%s::Cookie::{%s,%s}", req.getRemoteAddr(), c.getName(), c.getValue()));
+                    .forEach(c -> logger.warn("{}::Cookie::{{},{}}", req.getRemoteAddr(), c.getName(), c.getValue()));
         }
         chain.doFilter(request, response);
     }

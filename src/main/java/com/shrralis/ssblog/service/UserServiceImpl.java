@@ -66,7 +66,6 @@ public class UserServiceImpl implements IUserService {
         if (!password.equals(user.getPassword())) {
             return new JsonResponse(JsonError.Error.INCORRECT_PASSWORD);
         }
-        user.setPassword(null);
         return new JsonResponse(user);
     }
 

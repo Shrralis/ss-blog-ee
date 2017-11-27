@@ -12,15 +12,19 @@
     <title>Shrralis SS Blog</title>
 </head>
 <body>
-<a href="/createPost">
-    New post
-</a>
+<div>
+    <a href="/createPost">New post</a>
+
+    <a href="/signIn">Logout</a>
+</div>
 
 <c:if test="${response.getResult() == 0}">
     <c:forEach items="${response.getData()}" var="post">
-        <div class="post">
+        <div class="post" style="margin: 32px auto">
             <div class="post-header">
-                <c:out value="${post.getTitle()}"/>
+                <a href="/post?id=${post.getId()}">
+                    <c:out value="${post.getTitle()}"/>
+                </a>
             </div>
 
             <div class="post-description">
@@ -29,10 +33,14 @@
 
             <div class="post-body">
                 <c:out value="${post.getText()}"/>
+                <br/>
+                <br/>
+                <a href="/post?id=${post.getId()}">Read full</a>
             </div>
 
             <div class="post-details">
-                <c:out value="${post.getCreator().getLogin()}"/>, <c:out value="${post.getCreatedAt()}"/>
+                <a href="/user?id=${post.getCreator().getId()}">${post.getCreator().getLogin()}</a>,
+                    ${post.getCreatedAt()}
             </div>
         </div>
     </c:forEach>

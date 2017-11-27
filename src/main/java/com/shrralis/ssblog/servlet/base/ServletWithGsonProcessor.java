@@ -3,7 +3,6 @@ package com.shrralis.ssblog.servlet.base;
 import com.google.gson.*;
 
 import javax.servlet.http.HttpServlet;
-import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -35,9 +34,5 @@ public class ServletWithGsonProcessor extends HttpServlet {
 
     protected Gson getGson() {
         return gson;
-    }
-
-    protected void returnError(String message, PrintWriter out) {
-        out.println("<span style=\"color: red\">" + message + "</span>");
     }
 }

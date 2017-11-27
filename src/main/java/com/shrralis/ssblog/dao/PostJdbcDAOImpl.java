@@ -4,12 +4,12 @@ import com.shrralis.ssblog.dao.base.JdbcBasedDAO;
 import com.shrralis.ssblog.dao.interfaces.IPostDAO;
 import com.shrralis.ssblog.entity.Post;
 import com.shrralis.ssblog.entity.User;
-import com.shrralis.tools.DateUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +47,7 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
         preparedStatement.setString(3, post.getText());
         preparedStatement.setBoolean(4, post.isPosted());
         preparedStatement.setInt(5, post.getCreator().getId());
-        preparedStatement.setString(6, DateUtil.toMySQLDateTimeString(post.getCreatedAt()));
+        preparedStatement.setObject(6, post.getCreatedAt());
 
         if (preparedStatement.executeUpdate() == 0) {
             throw new SQLException("Creating user failed, no rows affected.");
@@ -87,8 +87,8 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
         preparedStatement.setString(3, post.getText());
         preparedStatement.setBoolean(4, post.isPosted());
         preparedStatement.setInt(5, post.getCreator().getId());
-        preparedStatement.setString(6, DateUtil.toMySQLDateTimeString(post.getCreatedAt()));
-        preparedStatement.setString(7, DateUtil.toMySQLDateTimeString(post.getUpdatedAt()));
+        preparedStatement.setObject(6, post.getCreatedAt());
+        preparedStatement.setObject(7, post.getUpdatedAt());
         preparedStatement.setInt(8, post.getId());
         preparedStatement.executeUpdate();
         return getById(post.getId());
@@ -108,8 +108,8 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
                     .setText(resultSet.getString(TEXT_COLUMN_NAME))
                     .setPosted(resultSet.getBoolean(IS_POSTED_COLUMN_NAME))
                     .setCreator(UserJdbcDAOImpl.getDao().getById(resultSet.getInt(CREATOR_ID_COLUMN_NAME)))
-                    .setCreatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(CREATED_AT_COLUMN_NAME)))
-                    .setUpdatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(UPDATED_AT_COLUMN_NAME)))
+                    .setCreatedAt(resultSet.getObject(CREATED_AT_COLUMN_NAME, LocalDateTime.class))
+                    .setUpdatedAt(resultSet.getObject(UPDATED_AT_COLUMN_NAME, LocalDateTime.class))
                     .build());
         }
         return result;
@@ -138,8 +138,8 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
                     .setText(resultSet.getString(TEXT_COLUMN_NAME))
                     .setPosted(resultSet.getBoolean(IS_POSTED_COLUMN_NAME))
                     .setCreator(UserJdbcDAOImpl.getDao().getById(resultSet.getInt(CREATOR_ID_COLUMN_NAME)))
-                    .setCreatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(CREATED_AT_COLUMN_NAME)))
-                    .setUpdatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(UPDATED_AT_COLUMN_NAME)))
+                    .setCreatedAt(resultSet.getObject(CREATED_AT_COLUMN_NAME, LocalDateTime.class))
+                    .setUpdatedAt(resultSet.getObject(UPDATED_AT_COLUMN_NAME, LocalDateTime.class))
                     .build());
         }        return result;
     }
@@ -161,8 +161,8 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
                     .setText(resultSet.getString(TEXT_COLUMN_NAME))
                     .setPosted(resultSet.getBoolean(IS_POSTED_COLUMN_NAME))
                     .setCreator(UserJdbcDAOImpl.getDao().getById(resultSet.getInt(CREATOR_ID_COLUMN_NAME)))
-                    .setCreatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(CREATED_AT_COLUMN_NAME)))
-                    .setUpdatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(UPDATED_AT_COLUMN_NAME)))
+                    .setCreatedAt(resultSet.getObject(CREATED_AT_COLUMN_NAME, LocalDateTime.class))
+                    .setUpdatedAt(resultSet.getObject(UPDATED_AT_COLUMN_NAME, LocalDateTime.class))
                     .build();
         }
         return null;
@@ -186,8 +186,8 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
                     .setText(resultSet.getString(TEXT_COLUMN_NAME))
                     .setPosted(resultSet.getBoolean(IS_POSTED_COLUMN_NAME))
                     .setCreator(UserJdbcDAOImpl.getDao().getById(resultSet.getInt(CREATOR_ID_COLUMN_NAME)))
-                    .setCreatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(CREATED_AT_COLUMN_NAME)))
-                    .setUpdatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(UPDATED_AT_COLUMN_NAME)))
+                    .setCreatedAt(resultSet.getObject(CREATED_AT_COLUMN_NAME, LocalDateTime.class))
+                    .setUpdatedAt(resultSet.getObject(UPDATED_AT_COLUMN_NAME, LocalDateTime.class))
                     .build());
         }
         return result;
@@ -213,8 +213,8 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
                     .setText(resultSet.getString(TEXT_COLUMN_NAME))
                     .setPosted(resultSet.getBoolean(IS_POSTED_COLUMN_NAME))
                     .setCreator(UserJdbcDAOImpl.getDao().getById(resultSet.getInt(CREATOR_ID_COLUMN_NAME)))
-                    .setCreatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(CREATED_AT_COLUMN_NAME)))
-                    .setUpdatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(UPDATED_AT_COLUMN_NAME)))
+                    .setCreatedAt(resultSet.getObject(CREATED_AT_COLUMN_NAME, LocalDateTime.class))
+                    .setUpdatedAt(resultSet.getObject(UPDATED_AT_COLUMN_NAME, LocalDateTime.class))
                     .build());
         }
         return result;
@@ -238,8 +238,8 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
                     .setText(resultSet.getString(TEXT_COLUMN_NAME))
                     .setPosted(resultSet.getBoolean(IS_POSTED_COLUMN_NAME))
                     .setCreator(UserJdbcDAOImpl.getDao().getById(resultSet.getInt(CREATOR_ID_COLUMN_NAME)))
-                    .setCreatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(CREATED_AT_COLUMN_NAME)))
-                    .setUpdatedAt(DateUtil.fromMySQLDateTimeString(resultSet.getString(UPDATED_AT_COLUMN_NAME)))
+                    .setCreatedAt(resultSet.getObject(CREATED_AT_COLUMN_NAME, LocalDateTime.class))
+                    .setUpdatedAt(resultSet.getObject(UPDATED_AT_COLUMN_NAME, LocalDateTime.class))
                     .build());
         }
         return result;

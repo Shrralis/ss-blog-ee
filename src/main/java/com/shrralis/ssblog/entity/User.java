@@ -58,13 +58,19 @@ public class User {
             Scope result = null;
 
             for (Scope s : Scope.values()) {
-                if (s.name().equalsIgnoreCase(name)) {
+                if (s.name().equalsIgnoreCase(name == null ? null : name.trim())) {
                     result = s;
 
                     break;
                 }
             }
             return result;
+        }
+
+
+        @Override
+        public String toString() {
+            return super.toString();
         }
     }
 

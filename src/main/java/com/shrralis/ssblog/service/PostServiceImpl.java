@@ -6,8 +6,10 @@ import com.shrralis.ssblog.dao.UserJdbcDAOImpl;
 import com.shrralis.ssblog.dao.interfaces.IPostDAO;
 import com.shrralis.ssblog.dao.interfaces.IPostUpdaterDAO;
 import com.shrralis.ssblog.dao.interfaces.IUserDAO;
+import com.shrralis.ssblog.dto.NewPostDTO;
 import com.shrralis.ssblog.entity.Post;
 import com.shrralis.ssblog.entity.PostUpdater;
+import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.interfaces.IPostService;
 import com.shrralis.tools.TextUtil;
 import com.shrralis.tools.model.JsonError;
@@ -16,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 
 public class PostServiceImpl implements IPostService {
     private static Logger logger = LoggerFactory.getLogger(PostServiceImpl.class);
@@ -63,37 +65,56 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse create(Post post) {
-        if (TextUtil.isEmpty(post.getTitle())) {
+    public JsonResponse create(NewPostDTO postDTO) {
+        if (TextUtil.isEmpty(postDTO.getPostTitle())) {
             return new JsonResponse(JsonError.Error.EMPTY_TITLE);
-        } else if (post.getTitle().length() > 64) {
+        } else if (postDTO.getPostTitle().length() > 64) {
             return new JsonResponse(JsonError.Error.MAX_LENGTH_TITLE);
         }
 
-        if (TextUtil.isEmpty(post.getDescription())) {
+        if (TextUtil.isEmpty(postDTO.getPostDescription())) {
             return new JsonResponse(JsonError.Error.EMPTY_DESCRIPTION);
-        } else if (post.getDescription().length() > 128) {
+        } else if (postDTO.getPostDescription().length() > 128) {
             return new JsonResponse(JsonError.Error.MAX_LENGTH_DESCRIPTION);
         }
 
-        if (TextUtil.isEmpty(post.getText())) {
+        if (TextUtil.isEmpty(postDTO.getPostText())) {
             return new JsonResponse(JsonError.Error.EMPTY_TEXT);
-        } else if (post.getText().length() > 2048) {
+        } else if (postDTO.getPostText().length() > 2048) {
             return new JsonResponse(JsonError.Error.MAX_LENGTH_TEXT);
         }
 
-        if (post.getCreator() == null) {
+        if (postDTO.getCookieUser() == null) {
+            return new JsonResponse(JsonError.Error.NO_ACCESS);
+        }
+
+        User user;
+
+        try {
+            user = userDAO.getById(postDTO.getCookieUser().getId(), false);
+        } catch (SQLException e) {
+            logger.debug("Exception!", e);
+            return new JsonResponse(JsonError.Error.DATABASE);
+        }
+
+        if (user == null) {
             return new JsonResponse(JsonError.Error.USER_NOT_EXISTS);
         }
 
-        if (post.getCreatedAt() == null) {
-            post.setCreatedAt(Calendar.getInstance().getTime());
+        if (!User.Scope.WRITER.equals(user.getScope()) && !User.Scope.ADMIN.equals(user.getScope())) {
+            return new JsonResponse(JsonError.Error.NO_ACCESS);
         }
 
         try {
-            return new JsonResponse(dao.add(post));
+            return new JsonResponse(dao.add(new Post.Builder()
+                    .setTitle(postDTO.getPostTitle())
+                    .setDescription(postDTO.getPostDescription())
+                    .setText(postDTO.getPostText())
+                    .setCreator(user)
+                    .setCreatedAt(LocalDateTime.now())
+                    .build()));
         } catch (ClassNotFoundException | SQLException e) {
-            logger.debug("Exception with adding new post!");
+            logger.debug("Exception with adding new post!", e);
             return new JsonResponse(JsonError.Error.DATABASE);
         }
     }
@@ -153,7 +174,7 @@ public class PostServiceImpl implements IPostService {
             if (!TextUtil.isEmpty(post.getText())) {
                 dbPost.setText(post.getText());
             }
-            dbPost.setUpdatedAt(Calendar.getInstance().getTime());
+            dbPost.setUpdatedAt(LocalDateTime.now());
             return new JsonResponse(dao.edit(dbPost));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with updating post!", e);

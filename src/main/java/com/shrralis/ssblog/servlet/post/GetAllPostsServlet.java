@@ -30,10 +30,20 @@ public class GetAllPostsServlet extends HttpServlet {
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with creating PostService!", e);
             req.setAttribute("response", new JsonResponse(JsonError.Error.UNEXPECTED));
-            dispatcher.forward(req, resp);
+
+            try {
+                dispatcher.forward(req, resp);
+            } catch (ServletException | IOException e1) {
+                logger.debug("Exception!", e1);
+            }
             return;
         }
         req.setAttribute("response", postService.getAll());
-        dispatcher.forward(req, resp);
+
+        try {
+            dispatcher.forward(req, resp);
+        } catch (ServletException | IOException e1) {
+            logger.debug("Exception!", e1);
+        }
     }
 }
