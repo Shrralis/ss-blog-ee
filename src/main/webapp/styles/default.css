@@ -1,0 +1,192 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,400i,500,500i,600,600i,700,700i,800,800i&subset=cyrillic-ext');
+
+* {
+    font-family: 'Montserrat', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    margin: 0;
+}
+
+.container {
+    width: 100%;
+}
+
+.center {
+    margin: 0 auto;
+}
+
+button {
+    padding: 5px;
+    height: 40px;
+    min-width: 30px;
+    border-radius: 5px;
+    border: none;
+}
+
+button:hover {
+    cursor: pointer;
+    -webkit-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
+}
+
+.btn-primary {
+    background-color: #6924ff;
+    color: #cbcbcb;
+}
+
+.btn-primary:hover {
+    background-color: #7838ff;
+}
+
+.btn-default {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.btn-default:hover {
+    background-color: #dddddd;
+}
+
+.sign-form {
+    padding: 30px;
+    max-width: calc(300px + 60px);
+    margin-top: 150px;
+    -webkit-box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
+    box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
+    text-align: center;
+}
+
+.sign-form.header {
+
+}
+
+.sign-form input {
+    margin: 10px;
+    padding: 15px;
+    width: 340px;
+    height: 55px;
+    background-color: #ffffff;
+    border: solid 1px #000000;
+    color: #000000;
+    font-size: 14pt;
+}
+
+.sign-form input::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    color: #000000;
+}
+
+.sign-form input::-moz-placeholder { /* Firefox 19+ */
+    color: #000000;
+}
+
+.sign-form input:-ms-input-placeholder { /* IE 10+ */
+    color: #000000;
+}
+
+.sign-form input:-moz-placeholder { /* Firefox 18- */
+    color: #000000;
+}
+
+.sign-form button.btn-primary {
+    margin: 10px;
+    width: 205px;
+}
+
+.sign-form button.btn-default {
+    margin: 10px;
+    width: 110px;
+}
+
+.error {
+    color: #FF0000;
+    font-weight: bold;
+}
+
+nav {
+    width: 100%;
+    height: 40px;
+    padding: 15px 30px;
+    background-color: #6924ff;
+    color: #ffffff;
+}
+
+nav .btn-default {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.post {
+    margin: 30px auto;
+    padding: 10px;
+    max-width: 70%;
+    border-radius: 10px;
+    -webkit-box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
+    box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
+    transition: all 300ms;
+}
+
+.post:hover {
+    -webkit-box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.75);
+    box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.75);
+}
+
+.btn-menu {
+    background-color: rgba(255, 255, 255, 0);
+    color: #dddddd;
+}
+
+.btn-menu:hover {
+    background-color: rgba(255, 255, 255, .1);
+    box-shadow: none;
+}
+
+.post-header {
+    margin: 10px;
+    text-shadow: 0 0 5px rgba(150, 150, 150, 1);
+}
+
+.post-header a {
+    text-decoration: none;
+    color: #000000;
+}
+
+.post-header a:visited {
+    text-decoration: none;
+    color: #000000;
+}
+
+.post-actions {
+    margin: auto 5px 10px;
+    font-size: 10pt;
+}
+
+.post-actions a {
+    font-weight: 600;
+    color: #000000;
+}
+
+.post-actions a:visited {
+    font-weight: 600;
+    color: #000000;
+}
+
+.post-description {
+    margin: 5px;
+    font-size: 11pt;
+}
+
+.post-body {
+    margin: 15px 5px 5px 5px;
+    font-size: 14pt;
+}
+
+.post-details {
+    margin: 5px;
+}

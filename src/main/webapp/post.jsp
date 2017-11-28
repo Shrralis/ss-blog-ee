@@ -14,6 +14,8 @@
             ${response.getData().get(0).getTitle()}
         </c:if>
     </title>
+
+    <link rel="stylesheet" type="text/css" href="styles/default.css">
 </head>
 <body>
 <div>

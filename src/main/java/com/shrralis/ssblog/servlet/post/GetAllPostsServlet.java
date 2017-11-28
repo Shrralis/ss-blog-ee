@@ -1,5 +1,7 @@
 package com.shrralis.ssblog.servlet.post;
 
+import com.shrralis.ssblog.dto.PostUpdaterDTO;
+import com.shrralis.ssblog.entity.Post;
 import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.PostServiceImpl;
 import com.shrralis.ssblog.service.interfaces.IPostService;
@@ -17,6 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 @WebServlet("/")
 public class GetAllPostsServlet extends ServletWithGsonProcessor {
@@ -40,10 +44,26 @@ public class GetAllPostsServlet extends ServletWithGsonProcessor {
             }
             return;
         }
-        req.setAttribute("response", postService.getAll(getGson().fromJson(
+
+        User user = getGson().fromJson(
                 URLDecoder.decode(req.getSession(false).getAttribute("user").toString(), "UTF-8"),
                 User.class
-        )));
+        );
+        JsonResponse response = postService.getAll(user);
+        Map<Integer, Boolean> access = new HashMap<>();
+
+        req.setAttribute("response", response);
+        req.setAttribute("scope", user.getScope().name());
+        req.setAttribute("user_id", user.getId());
+        response.getData().forEach(p -> access.put(
+                ((Post) p).getId(),
+                postService.getUsersWithAccess(((Post) p).getId(), user)
+                        .getData()
+                        .stream()
+                        .anyMatch(v -> ((PostUpdaterDTO) v).getUserId().equals(user.getId()) &&
+                                ((PostUpdaterDTO) v).isPostUpdater())
+        ));
+        req.setAttribute("access", access);
 
         try {
             dispatcher.forward(req, resp);

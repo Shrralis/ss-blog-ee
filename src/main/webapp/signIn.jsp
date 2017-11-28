@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.
   User: shrralis
@@ -9,20 +10,26 @@
 <html>
 <head>
     <title>Shrralis SS Blog | Sign in</title>
+
+    <link rel="stylesheet" type="text/css" href="styles/default.css">
 </head>
 <body>
-<div>
-    <a href="/signUp">Register</a>
+<div class="container">
+    <form class="center sign-form" action="/signIn" method="post">
+        <h2 class="header">
+            Authorization
+        </h2>
+
+        <input type="text" name="login" placeholder="Login" value="${login}" autocomplete="true"/>
+        <br/>
+        <input type="password" name="password" placeholder="Password"/>
+        <br/>
+        <button class="btn-primary" type="submit">Sign in</button>
+
+        <button class="btn-default" type="button" onclick="window.location.href='/signUp'">Register</button>
+
+        <span class="error">${error}</span>
+    </form>
 </div>
-
-<form action="/signIn" method="post">
-    <input type="text" name="login" placeholder="Login" value="${login}"/>
-    <br/>
-    <input type="password" name="password" placeholder="Password"/>
-    <br/>
-    <button type="submit">Sign in</button>
-</form>
-
-<span style="color: #F00;">${error}</span>
 </body>
 </html>

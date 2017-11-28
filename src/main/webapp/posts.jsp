@@ -10,55 +10,66 @@
 <html>
 <head>
     <title>Shrralis SS Blog</title>
+
+    <link rel="stylesheet" type="text/css" href="styles/default.css">
 </head>
 <body>
-<div>
-    <a href="/createPost">New post</a>
+<nav>
+    <button class="btn-menu" type="button" onclick="window.location.href='/createPost'">New post</button>
 
-    <a href="/signIn">Logout</a>
-</div>
+    <button class="btn-menu" type="button" onclick="window.location.href='/myPosts'">My posts</button>
 
-<c:if test="${response.getResult() == 0}">
-    <c:forEach items="${response.getData()}" var="post">
-        <div class="post" style="margin: 32px auto">
-            <h1 class="post-header">
-                <a href="/post?id=${post.getId()}">
-                    <c:out value="${post.getTitle()}"/>
-                </a>
-            </h1>
+    <button class="btn-menu" type="button" onclick="window.location.href='/signIn'">Logout</button>
+</nav>
 
-            <div class="post-actions">
-                <c:choose>
-                    <c:when test="${post.isPosted()}">
-                        posted
-                    </c:when>
-                    <c:otherwise>
-                        isn't posted yet
-                    </c:otherwise>
-                </c:choose>
+<main class="container">
+    <c:if test="${response.getResult() == 0}">
+        <c:forEach items="${response.getData()}" var="post">
+            <div class="post" style="margin: 32px auto">
+                <h1 class="post-header">
+                    <a href="/post?id=${post.getId()}">
+                        <c:out value="${post.getTitle()}"/>
+                    </a>
+                </h1>
 
-                <a href="/editPost?id=${post.getId()}">Edit</a>
+                <div class="post-actions">
+                    <c:choose>
+                        <c:when test="${post.isPosted()}">
+                            posted
+                        </c:when>
 
-                <a href="/deletePost?id=${post.getId()}">Delete</a>
+                        <c:otherwise>
+                            isn't posted yet
+                        </c:otherwise>
+                    </c:choose>
+
+                    <c:if test="${access.get(post.getId()) || post.getCreator().getId().equals(user_id)}">
+                        <a href="/editPost?id=${post.getId()}">Edit</a>
+                    </c:if>
+
+                    <c:if test="${post.getCreator().getId().equals(user_id) || \"ADMIN\".equals(scope)}">
+                        <a href="/deletePost?id=${post.getId()}">Delete</a>
+                    </c:if>
+                </div>
+
+                <div class="post-description">
+                    <c:out value="${post.getDescription()}"/>
+                </div>
+
+                <div class="post-body">
+                    <c:out value="${post.getText()}"/>
+                    <br/>
+                    <br/>
+                    <a href="/post?id=${post.getId()}">Read full</a>
+                </div>
+
+                <h5 class="post-details">
+                    <a href="/user?id=${post.getCreator().getId()}">${post.getCreator().getLogin()}</a>,
+                        ${post.getCreatedAt()}
+                </h5>
             </div>
-
-            <div class="post-description">
-                <c:out value="${post.getDescription()}"/>
-            </div>
-
-            <div class="post-body">
-                <c:out value="${post.getText()}"/>
-                <br/>
-                <br/>
-                <a href="/post?id=${post.getId()}">Read full</a>
-            </div>
-
-            <h5 class="post-details">
-                <a href="/user?id=${post.getCreator().getId()}">${post.getCreator().getLogin()}</a>,
-                    ${post.getCreatedAt()}
-            </h5>
-            </div>
-    </c:forEach>
-</c:if>
+        </c:forEach>
+    </c:if>
+</main>
 </body>
 </html>

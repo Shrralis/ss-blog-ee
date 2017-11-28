@@ -4,26 +4,13 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
 
-    <!--Filters-->
-    <filter>
-        <filter-name>RequestLoggingFilter</filter-name>
-        <filter-class>com.shrralis.ssblog.filter.RequestLoggingFilter</filter-class>
-    </filter>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>*.css</url-pattern>
+    </servlet-mapping>
 
-    <filter>
-        <filter-name>AuthenticationFilter</filter-name>
-        <filter-class>com.shrralis.ssblog.filter.AuthenticationFilter</filter-class>
-    </filter>
-
-    <!--Filter mappings-->
-    <filter-mapping>
-        <filter-name>RequestLoggingFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>AuthenticationFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>*.js</url-pattern>
+    </servlet-mapping>
 </web-app>

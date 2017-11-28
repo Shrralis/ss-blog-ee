@@ -1,6 +1,6 @@
 package com.shrralis.ssblog.servlet.post;
 
-import com.shrralis.ssblog.dto.EditPostDTO;
+import com.shrralis.ssblog.dto.NewEditPostDTO;
 import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.PostServiceImpl;
 import com.shrralis.ssblog.service.interfaces.IPostService;
@@ -35,7 +35,7 @@ public class EditPostServlet extends ServletWithGsonProcessor {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            req.setAttribute("response", new PostServiceImpl().edit(new EditPostDTO.Builder()
+            req.setAttribute("response", new PostServiceImpl().edit(new NewEditPostDTO.Builder()
                     .setCookieUser(getGson().fromJson(
                             URLDecoder.decode(req.getSession(false).getAttribute("user").toString(), "UTF-8"),
                             User.class

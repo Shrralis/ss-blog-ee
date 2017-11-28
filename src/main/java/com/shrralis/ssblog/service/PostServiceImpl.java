@@ -19,7 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class PostServiceImpl implements IPostService {
@@ -80,7 +82,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse create(NewPostDTO postDTO) {
+    public JsonResponse create(NewEditPostDTO postDTO) {
         if (TextUtil.isEmpty(postDTO.getPostTitle())) {
             return new JsonResponse(JsonError.Error.EMPTY_TITLE);
         } else if (postDTO.getPostTitle().length() > 64) {
@@ -176,7 +178,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse edit(EditPostDTO postDTO) {
+    public JsonResponse edit(NewEditPostDTO postDTO) {
         if (postDTO == null || (TextUtil.isEmpty(postDTO.getPostTitle()) &&
                 TextUtil.isEmpty(postDTO.getPostDescription()) &&
                 TextUtil.isEmpty(postDTO.getPostText()))) {
@@ -249,6 +251,45 @@ public class PostServiceImpl implements IPostService {
                     .collect(Collectors.toList()));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with getting all posts!", e);
+            return new JsonResponse(JsonError.Error.DATABASE);
+        }
+    }
+
+    @Override
+    public JsonResponse getUsersWithAccess(Integer postId, User user) {
+        if (user == null || user.getId() < 1) {
+            return new JsonResponse(JsonError.Error.NO_ACCESS);
+        }
+
+        if (postId == null || postId < 1) {
+            return new JsonResponse(JsonError.Error.BAD_POST_ID);
+        }
+
+        try {
+            User u = userDAO.getById(user.getId(), true);
+
+            if (u == null || !u.getPassword().equals(user.getPassword())) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
+            }
+
+            Post post = dao.getById(postId);
+
+            if (post == null) {
+                return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
+            }
+
+            List<User> users = userDAO.getAllUsers(false);
+            List<PostUpdater> postUpdaters = postUpdaterDAO.getByPost(post);
+            List<PostUpdaterDTO> result = new ArrayList<>();
+
+            users.forEach(v -> result.add(new PostUpdaterDTO.Builder()
+                    .setUserId(v.getId())
+                    .setUserLogin(v.getLogin())
+                    .setPostUpdater(postUpdaters.stream().anyMatch(p -> p.getUser().getId().equals(v.getId())))
+                    .build()));
+            return new JsonResponse(result);
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.debug("Exception!", e);
             return new JsonResponse(JsonError.Error.DATABASE);
         }
     }

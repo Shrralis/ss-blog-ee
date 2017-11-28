@@ -21,7 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@WebFilter("/AuthenticationFilter")
+@WebFilter("/*")
 public class AuthenticationFilter implements Filter {
     private static Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
     private static final Gson gson = new GsonBuilder()
@@ -54,6 +54,14 @@ public class AuthenticationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+        HttpServletRequest req = (HttpServletRequest) request;
+        String uri = req.getRequestURI();
+
+        if (uri.endsWith(".css") || uri.endsWith(".js")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         IUserDAO dao;
 
         try {
@@ -63,12 +71,7 @@ public class AuthenticationFilter implements Filter {
             return;
         }
 
-        HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-        String uri = req.getRequestURI();
-
-        logger.warn("Requested resource: {}", uri);
-
         HttpSession session = req.getSession(false);
         User user = null;
         User u = null;
@@ -91,23 +94,19 @@ public class AuthenticationFilter implements Filter {
 
         if ((session == null || user == null || User.Scope.BANNED.equals(user.getScope()) ||
                 !user.getPassword().equals(u.getPassword())) && !(uri.endsWith("signIn") || uri.endsWith("signUp"))) {
-            logger.warn("Unauthorized access request");
             res.sendRedirect("/signIn");
         } else {
             if (user != null) {
                 if (uri.endsWith("setUserScope") && !User.Scope.ADMIN.equals(user.getScope())) {
-                    logger.warn("Unauthorized access request");
                     res.sendRedirect("/");
                     return;
                 }
 
                 if (uri.endsWith("createPost") && User.Scope.WRITER.ordinal() > user.getScope().ordinal()) {
-                    logger.warn("Unauthorized access request");
                     res.sendRedirect("/");
                     return;
                 } else if ((uri.endsWith("setPostUpdater") || uri.endsWith("removePostUpdater") ||
                         uri.endsWith("setPosted")) && User.Scope.WRITER.ordinal() > user.getScope().ordinal()) {
-                    logger.warn("Unauthorized access request");
                     res.sendRedirect("/");
                     return;
                 }

@@ -3,8 +3,7 @@ package com.shrralis.ssblog.servlet.post;
 import com.shrralis.ssblog.dto.EditUpdaterDTO;
 import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.PostServiceImpl;
-import com.shrralis.ssblog.service.UserServiceImpl;
-import com.shrralis.ssblog.service.interfaces.IUserService;
+import com.shrralis.ssblog.service.interfaces.IPostService;
 import com.shrralis.ssblog.servlet.base.ServletWithGsonProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +24,17 @@ public class EditUpdatersServlet extends ServletWithGsonProcessor {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             if (req.getParameter("action") == null) {
-                IUserService userService = new UserServiceImpl();
+                IPostService postService = new PostServiceImpl();
 
-                req.setAttribute("response", userService.getAllUsers());
+                req.setAttribute("response", postService
+                        .getUsersWithAccess(
+                                Integer.valueOf(req.getParameter("id")),
+                                getGson().fromJson(
+                                        URLDecoder.decode(req.getSession(false)
+                                                .getAttribute("user").toString(), "UTF-8"),
+                                        User.class
+                                )
+                        ));
                 req.setAttribute("id", req.getParameter("id"));
                 getServletContext().getRequestDispatcher("/editUpdaters.jsp").forward(req, resp);
                 return;

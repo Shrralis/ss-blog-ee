@@ -21,11 +21,17 @@
 <c:if test="${response.getResult() == 0}">
     <c:forEach items="${response.getData()}" var="user">
         <div class="user">
-            <c:out value="${user.getLogin()}"/>
+            <c:out value="${user.getUserLogin()}"/>
 
-            <a href="/editUpdaters?action=add&user_id=${user.getId()}&id=${id}">Grant</a>
+            <c:choose>
+                <c:when test="${user.isPostUpdater()}">
+                    <a href="/editUpdaters?action=revoke&user_id=${user.getUserId()}&id=${id}">Revoke</a>
+                </c:when>
 
-            <a href="/editUpdaters?action=revoke&user_id=${user.getId()}&id=${id}">Revoke</a>
+                <c:otherwise>
+                    <a href="/editUpdaters?action=add&user_id=${user.getUserId()}&id=${id}">Grant</a>
+                </c:otherwise>
+            </c:choose>
         </div>
     </c:forEach>
 </c:if>

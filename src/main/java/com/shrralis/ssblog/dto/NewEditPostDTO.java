@@ -5,9 +5,9 @@ import com.shrralis.ssblog.entity.User;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NewPostDTO {
+public class NewEditPostDTO {
     private User cookieUser;
-    private Map<String, String> post = new HashMap<>();
+    private Map<String, Object> post = new HashMap<>();
 
     public User getCookieUser() {
         return cookieUser;
@@ -17,8 +17,16 @@ public class NewPostDTO {
         this.cookieUser = cookieUser;
     }
 
+    public Integer getPostId() {
+        return (Integer) post.get("id");
+    }
+
+    public void setPostId(Integer id) {
+        post.put("id", id);
+    }
+
     public String getPostTitle() {
-        return post.get("title");
+        return String.valueOf(post.get("title"));
     }
 
     public void setPostTitle(String title) {
@@ -26,7 +34,7 @@ public class NewPostDTO {
     }
 
     public String getPostDescription() {
-        return post.get("description");
+        return String.valueOf(post.get("description"));
     }
 
     public void setPostDescription(String description) {
@@ -34,22 +42,35 @@ public class NewPostDTO {
     }
 
     public String getPostText() {
-        return post.get("text");
+        return String.valueOf(post.get("text"));
     }
 
     public void setPostText(String text) {
         post.put("text", text);
     }
 
+    public Boolean isPosted() {
+        return post.get("posted").equals("true");
+    }
+
+    public void setPosted(Boolean posted) {
+        post.put("posted", posted);
+    }
+
     public static class Builder {
-        private NewPostDTO dto;
+        private NewEditPostDTO dto;
 
         public Builder() {
-            dto = new NewPostDTO();
+            dto = new NewEditPostDTO();
         }
 
-        public Builder setCookieUser(User cookieUser) {
-            dto.setCookieUser(cookieUser);
+        public Builder setCookieUser(User user) {
+            dto.setCookieUser(user);
+            return this;
+        }
+
+        public Builder setPostId(Integer id) {
+            dto.setPostId(id);
             return this;
         }
 
@@ -68,7 +89,12 @@ public class NewPostDTO {
             return this;
         }
 
-        public NewPostDTO build() {
+        public Builder setPosted(boolean posted) {
+            dto.setPosted(posted);
+            return this;
+        }
+
+        public NewEditPostDTO build() {
             return dto;
         }
     }

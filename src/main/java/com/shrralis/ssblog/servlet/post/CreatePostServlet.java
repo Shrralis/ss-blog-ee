@@ -1,6 +1,6 @@
 package com.shrralis.ssblog.servlet.post;
 
-import com.shrralis.ssblog.dto.NewPostDTO;
+import com.shrralis.ssblog.dto.NewEditPostDTO;
 import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.PostServiceImpl;
 import com.shrralis.ssblog.service.interfaces.IPostService;
@@ -46,7 +46,7 @@ public class CreatePostServlet extends ServletWithGsonProcessor {
             return;
         }
 
-        NewPostDTO dto = new NewPostDTO.Builder()
+        NewEditPostDTO dto = new NewEditPostDTO.Builder()
                 .setCookieUser(getGson().fromJson(
                         URLDecoder.decode(req.getSession(false).getAttribute("user").toString(), "UTF-8"),
                         User.class
