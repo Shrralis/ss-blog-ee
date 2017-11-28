@@ -1,23 +1,23 @@
 package com.shrralis.ssblog.service.interfaces;
 
-import com.shrralis.ssblog.dto.NewPostDTO;
-import com.shrralis.ssblog.entity.Post;
+import com.shrralis.ssblog.dto.*;
+import com.shrralis.ssblog.entity.User;
 import com.shrralis.tools.model.JsonResponse;
 
 public interface IPostService {
-    JsonResponse addUpdater(Integer postId, Integer newUpdaterId);
+    JsonResponse addUpdater(EditUpdaterDTO dto);
 
     JsonResponse create(NewPostDTO postDTO);
 
-    JsonResponse delete(Integer postId, Integer userId);
+    JsonResponse delete(DeletePostDTO postDTO);
 
-    JsonResponse edit(Post post, Integer userId);
+    JsonResponse edit(EditPostDTO postDTO);
 
     JsonResponse get(Integer postId);
 
-    JsonResponse getAll();
+    JsonResponse getAll(User user);
 
-    JsonResponse revokeUpdater(Integer postId, Integer updaterId, Integer revokerId);
+    JsonResponse revokeUpdater(EditUpdaterDTO dto);
 
-    JsonResponse setPosted(Integer postId, boolean isPosted, Integer userId);
+    JsonResponse setPosted(SetPostedDTO postedDTO);
 }

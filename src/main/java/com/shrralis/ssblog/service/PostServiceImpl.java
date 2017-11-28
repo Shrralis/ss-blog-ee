@@ -6,7 +6,7 @@ import com.shrralis.ssblog.dao.UserJdbcDAOImpl;
 import com.shrralis.ssblog.dao.interfaces.IPostDAO;
 import com.shrralis.ssblog.dao.interfaces.IPostUpdaterDAO;
 import com.shrralis.ssblog.dao.interfaces.IUserDAO;
-import com.shrralis.ssblog.dto.NewPostDTO;
+import com.shrralis.ssblog.dto.*;
 import com.shrralis.ssblog.entity.Post;
 import com.shrralis.ssblog.entity.PostUpdater;
 import com.shrralis.ssblog.entity.User;
@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 public class PostServiceImpl implements IPostService {
     private static Logger logger = LoggerFactory.getLogger(PostServiceImpl.class);
@@ -33,33 +35,46 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse addUpdater(Integer postId, Integer newUpdaterId) {
+    public JsonResponse addUpdater(EditUpdaterDTO dto) {
         try {
-            if (postUpdaterDAO.get(newUpdaterId, postId) != null) {
-                return new JsonResponse(JsonError.Error.ALREADY_EXISTS);
+            if (dto.getCookieUser() == null) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
 
-            PostUpdater postUpdater = new PostUpdater.Builder()
-                    .setPost(dao.getById(postId))
-                    .setUser(userDAO.getById(newUpdaterId, false))
-                    .build();
+            if (dto.getPostId() == null || dto.getPostId() < 1) {
+                return new JsonResponse(JsonError.Error.BAD_POST_ID);
+            }
 
-            if (postUpdater.getPost() == null) {
+            if (dto.getUpdaterId() == null || dto.getUpdaterId() < 1) {
+                return new JsonResponse(JsonError.Error.BAD_UPDATER_ID);
+            }
+
+            User user = userDAO.getById(dto.getCookieUser().getId(), true);
+            Post post = dao.getById(dto.getPostId());
+
+            if (post == null) {
                 return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
             }
 
-            if (postUpdater.getUser() == null) {
-                return new JsonResponse(JsonError.Error.USER_NOT_EXISTS);
+            if (user == null || !user.getId().equals(post.getCreator().getId())) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
 
-            postUpdater = postUpdaterDAO.add(postUpdater);
+            if (postUpdaterDAO.get(dto.getPostId(), dto.getUpdaterId()) != null) {
+                return new JsonResponse(JsonError.Error.ALREADY_EXISTS);
+            }
+
+            PostUpdater postUpdater = postUpdaterDAO.add(new PostUpdater.Builder()
+                    .setPost(dao.getById(dto.getPostId()))
+                    .setUser(userDAO.getById(dto.getUpdaterId(), false))
+                    .build());
 
             if (postUpdater == null) {
                 return new JsonResponse(JsonError.Error.ADD_POST_UPDATER_FAIL);
             }
             return new JsonResponse(postUpdater);
         } catch (ClassNotFoundException | SQLException e) {
-            logger.debug("Exception in addUpdater(" + postId + "," + newUpdaterId + ")", e);
+            logger.debug("Exception in addUpdater(" + dto.getPostId() + "," + dto.getUpdaterId() + ")", e);
             return new JsonResponse(JsonError.Error.DATABASE);
         }
     }
@@ -120,19 +135,36 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse delete(Integer postId, Integer userId) {
-        if (postId == null || postId < 1) {
+    public JsonResponse delete(DeletePostDTO postDTO) {
+        if (postDTO.getPostId() == null || postDTO.getPostId() < 1) {
             return new JsonResponse(JsonError.Error.BAD_POST_ID);
         }
 
         try {
-            Post post = dao.getById(postId);
+            Post post = dao.getById(postDTO.getPostId());
 
             if (post == null) {
                 return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
             }
 
-            if (!post.getCreator().getId().equals(userId)) {
+            if (postDTO.getCookieUser() == null) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
+            }
+
+            User user;
+
+            try {
+                user = userDAO.getById(postDTO.getCookieUser().getId(), false);
+            } catch (SQLException e) {
+                logger.debug("Exception!", e);
+                return new JsonResponse(JsonError.Error.DATABASE);
+            }
+
+            if (user == null) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
+            }
+
+            if (!post.getCreator().getId().equals(user.getId()) && !User.Scope.ADMIN.equals(user.getScope())) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
             dao.delete(post);
@@ -144,35 +176,43 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse edit(Post post, Integer userId) {
-        if (post == null || (TextUtil.isEmpty(post.getTitle()) &&
-                TextUtil.isEmpty(post.getDescription()) &&
-                TextUtil.isEmpty(post.getText()))) {
+    public JsonResponse edit(EditPostDTO postDTO) {
+        if (postDTO == null || (TextUtil.isEmpty(postDTO.getPostTitle()) &&
+                TextUtil.isEmpty(postDTO.getPostDescription()) &&
+                TextUtil.isEmpty(postDTO.getPostText()))) {
+            logger.debug("BAD UPDATE DATA");
             return new JsonResponse(JsonError.Error.BAD_UPDATE_DATA);
         }
 
         try {
-            Post dbPost = dao.getById(post.getId());
+            Post dbPost = dao.getById(postDTO.getPostId());
 
             if (dbPost == null) {
+                logger.debug("POST NOT EXISTS");
                 return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
             }
 
-            if (!dbPost.getCreator().getId().equals(userId) &&
-                    postUpdaterDAO.get(userId, post.getId()) == null) {
+            if (postDTO.getCookieUser() == null) {
+                logger.debug("NO ACCESS");
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
 
-            if (!TextUtil.isEmpty(post.getTitle())) {
-                dbPost.setTitle(post.getTitle());
+            if (!dbPost.getCreator().getId().equals(postDTO.getCookieUser().getId()) &&
+                    postUpdaterDAO.get(postDTO.getPostId(), postDTO.getCookieUser().getId()) == null) {
+                logger.debug("NO ACCESS 1");
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
 
-            if (!TextUtil.isEmpty(post.getDescription())) {
-                dbPost.setTitle(post.getDescription());
+            if (!TextUtil.isEmpty(postDTO.getPostTitle())) {
+                dbPost.setTitle(postDTO.getPostTitle());
             }
 
-            if (!TextUtil.isEmpty(post.getText())) {
-                dbPost.setText(post.getText());
+            if (!TextUtil.isEmpty(postDTO.getPostDescription())) {
+                dbPost.setTitle(postDTO.getPostDescription());
+            }
+
+            if (!TextUtil.isEmpty(postDTO.getPostText())) {
+                dbPost.setText(postDTO.getPostText());
             }
             dbPost.setUpdatedAt(LocalDateTime.now());
             return new JsonResponse(dao.edit(dbPost));
@@ -197,9 +237,16 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse getAll() {
+    public JsonResponse getAll(User user) {
         try {
-            return new JsonResponse(dao.getAllPosts());
+            User tempUser = user == null ? null : userDAO.getById(user.getId(), true);
+            final User u1 = tempUser == null ? null :
+                    (tempUser.getPassword().equals(user.getPassword()) ? tempUser : null);
+
+            return new JsonResponse(dao.getAllPosts().stream()
+                    .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
+                    .filter(p -> p.isPosted() || (u1 != null && p.getCreator().getId().equals(u1.getId())))
+                    .collect(Collectors.toList()));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with getting all posts!", e);
             return new JsonResponse(JsonError.Error.DATABASE);
@@ -207,27 +254,32 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse revokeUpdater(Integer postId, Integer updaterId, Integer revokerId) {
-        if (postId == null || postId < 1) {
-            return new JsonResponse(JsonError.Error.BAD_POST_ID);
-        }
-
-        if (updaterId == null || updaterId < 1) {
-            return new JsonResponse(JsonError.Error.BAD_UPDATER_ID);
-        }
-
+    public JsonResponse revokeUpdater(EditUpdaterDTO dto) {
         try {
-            Post post = dao.getById(postId);
+            if (dto.getCookieUser() == null) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
+            }
+
+            if (dto.getPostId() == null || dto.getPostId() < 1) {
+                return new JsonResponse(JsonError.Error.BAD_POST_ID);
+            }
+
+            if (dto.getUpdaterId() == null || dto.getUpdaterId() < 1) {
+                return new JsonResponse(JsonError.Error.BAD_UPDATER_ID);
+            }
+
+            User user = userDAO.getById(dto.getCookieUser().getId(), true);
+            Post post = dao.getById(dto.getPostId());
 
             if (post == null) {
                 return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
             }
 
-            if (revokerId == null || revokerId < 1 || !revokerId.equals(post.getCreator().getId())) {
+            if (user == null || !user.getId().equals(post.getCreator().getId())) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
 
-            PostUpdater postUpdater = postUpdaterDAO.get(updaterId, postId);
+            PostUpdater postUpdater = postUpdaterDAO.get(dto.getPostId(), dto.getUpdaterId());
 
             if (postUpdater == null) {
                 return new JsonResponse(JsonError.Error.POST_HAVE_NOT_UPDATER);
@@ -241,22 +293,28 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse setPosted(Integer postId, boolean isPosted, Integer userId) {
-        if (postId == null || postId < 1) {
+    public JsonResponse setPosted(SetPostedDTO postedDTO) {
+        if (postedDTO == null || postedDTO.getPostId() == null || postedDTO.getPostId() < 1) {
             return new JsonResponse(JsonError.Error.BAD_POST_ID);
         }
 
         try {
-            Post post = dao.getById(postId);
+            Post post = dao.getById(postedDTO.getPostId());
 
             if (post == null) {
                 return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
             }
 
-            if (userId == null || userId < 1 || !userId.equals(post.getCreator().getId())) {
+            if (postedDTO.getCookieUser() == null || postedDTO.getCookieUser().getId() < 1) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
-            post.setPosted(isPosted);
+
+            User user = userDAO.getById(postedDTO.getCookieUser().getId(), true);
+
+            if (user == null || !user.getPassword().equals(postedDTO.getCookieUser().getPassword())) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
+            }
+            post.setPosted(postedDTO.isPostPosted());
             return new JsonResponse(dao.edit(post));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with setting post's `is_posted`!", e);

@@ -1,0 +1,54 @@
+package com.shrralis.ssblog.servlet.post;
+
+import com.shrralis.ssblog.dto.EditPostDTO;
+import com.shrralis.ssblog.entity.User;
+import com.shrralis.ssblog.service.PostServiceImpl;
+import com.shrralis.ssblog.service.interfaces.IPostService;
+import com.shrralis.ssblog.servlet.base.ServletWithGsonProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.sql.SQLException;
+
+@WebServlet("/editPost")
+public class EditPostServlet extends ServletWithGsonProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(EditPostServlet.class);
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            IPostService postService = new PostServiceImpl();
+
+            req.setAttribute("response", postService.get(Integer.valueOf(req.getParameter("id"))));
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.debug("Exception!", e);
+        }
+        getServletContext().getRequestDispatcher("/editPost.jsp").forward(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            req.setAttribute("response", new PostServiceImpl().edit(new EditPostDTO.Builder()
+                    .setCookieUser(getGson().fromJson(
+                            URLDecoder.decode(req.getSession(false).getAttribute("user").toString(), "UTF-8"),
+                            User.class
+                    ))
+                    .setPostId(Integer.valueOf(req.getParameter("id")))
+                    .setPostTitle(req.getParameter("title"))
+                    .setPostDescription(req.getParameter("description"))
+                    .setPostText(req.getParameter("text"))
+                    .setPosted(Boolean.valueOf(req.getParameter("posted")))
+                    .build()));
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.debug("Exception!", e);
+        }
+        resp.sendRedirect("/post?id=" + req.getParameter("id"));
+    }
+}

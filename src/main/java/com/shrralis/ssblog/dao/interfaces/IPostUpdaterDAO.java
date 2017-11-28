@@ -12,7 +12,7 @@ public interface IPostUpdaterDAO {
 
     void delete(PostUpdater postUpdater) throws SQLException;
 
-    PostUpdater get(Integer userId, Integer postId) throws ClassNotFoundException, SQLException;
+    PostUpdater get(Integer postId, Integer userId) throws ClassNotFoundException, SQLException;
 
     List<PostUpdater> getAllPostsUpdaters() throws ClassNotFoundException, SQLException;
 

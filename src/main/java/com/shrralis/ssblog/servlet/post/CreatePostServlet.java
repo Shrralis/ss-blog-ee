@@ -32,6 +32,20 @@ public class CreatePostServlet extends ServletWithGsonProcessor {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         IPostService service;
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/createPost.jsp");
+
+        try {
+            service = new PostServiceImpl();
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.debug("Exception!", e);
+            req.setAttribute("id", req.getParameter("id"));
+            req.setAttribute("title", req.getParameter("title"));
+            req.setAttribute("description", req.getParameter("description"));
+            req.setAttribute("text", req.getParameter("text"));
+            req.setAttribute("error", JsonError.Error.UNEXPECTED.getMessage());
+            dispatcher.forward(req, resp);
+            return;
+        }
+
         NewPostDTO dto = new NewPostDTO.Builder()
                 .setCookieUser(getGson().fromJson(
                         URLDecoder.decode(req.getSession(false).getAttribute("user").toString(), "UTF-8"),
@@ -41,19 +55,6 @@ public class CreatePostServlet extends ServletWithGsonProcessor {
                 .setPostDescription(req.getParameter("description"))
                 .setPostText(req.getParameter("text"))
                 .build();
-
-        try {
-            service = new PostServiceImpl();
-        } catch (ClassNotFoundException | SQLException e) {
-            logger.debug("Exception!", e);
-            req.setAttribute("title", req.getParameter("title"));
-            req.setAttribute("description", req.getParameter("description"));
-            req.setAttribute("text", req.getParameter("text"));
-            req.setAttribute("error", JsonError.Error.UNEXPECTED.getMessage());
-            dispatcher.forward(req, resp);
-            return;
-        }
-
         JsonResponse response = service.create(dto);
 
         if (response.getResult().equals(JsonResponse.OK)) {
@@ -62,7 +63,8 @@ public class CreatePostServlet extends ServletWithGsonProcessor {
             req.setAttribute("title", req.getParameter("title"));
             req.setAttribute("description", req.getParameter("description"));
             req.setAttribute("text", req.getParameter("text"));
-            req.setAttribute("error", JsonError.Error.UNEXPECTED.getMessage());
+            req.setAttribute("response", response);
+            req.setAttribute("button", req.getAttribute("button"));
             dispatcher.forward(req, resp);
         }
     }

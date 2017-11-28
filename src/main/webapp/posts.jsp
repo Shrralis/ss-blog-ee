@@ -21,10 +21,25 @@
 <c:if test="${response.getResult() == 0}">
     <c:forEach items="${response.getData()}" var="post">
         <div class="post" style="margin: 32px auto">
-            <div class="post-header">
+            <h1 class="post-header">
                 <a href="/post?id=${post.getId()}">
                     <c:out value="${post.getTitle()}"/>
                 </a>
+            </h1>
+
+            <div class="post-actions">
+                <c:choose>
+                    <c:when test="${post.isPosted()}">
+                        posted
+                    </c:when>
+                    <c:otherwise>
+                        isn't posted yet
+                    </c:otherwise>
+                </c:choose>
+
+                <a href="/editPost?id=${post.getId()}">Edit</a>
+
+                <a href="/deletePost?id=${post.getId()}">Delete</a>
             </div>
 
             <div class="post-description">
@@ -38,11 +53,11 @@
                 <a href="/post?id=${post.getId()}">Read full</a>
             </div>
 
-            <div class="post-details">
+            <h5 class="post-details">
                 <a href="/user?id=${post.getCreator().getId()}">${post.getCreator().getLogin()}</a>,
                     ${post.getCreatedAt()}
+            </h5>
             </div>
-        </div>
     </c:forEach>
 </c:if>
 </body>

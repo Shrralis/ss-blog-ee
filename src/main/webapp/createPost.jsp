@@ -5,6 +5,7 @@
   Time: 4:55 PM
   To change this template use File | Settings | File Templates.
 --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -27,6 +28,10 @@
     <button type="submit">Create</button>
 </form>
 
-<span style="color: #F00;">${error}</span>
+<c:if test="${response.getResult() != 0}">
+    <span style="color: #F00;">
+        <c:out value="${reponse.getError().getErrormsg()}"/>
+    </span>
+</c:if>
 </body>
 </html>

@@ -54,12 +54,12 @@ public class PostUpdaterJdbcDAOImpl extends JdbcBasedDAO implements IPostUpdater
     }
 
     @Override
-    public PostUpdater get(Integer userId, Integer postId) throws ClassNotFoundException, SQLException {
+    public PostUpdater get(Integer postId, Integer userId) throws ClassNotFoundException, SQLException {
         PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("SELECT * FROM posts_updaters WHERE post_id = ? AND user_id = ?");
 
-        preparedStatement.setInt(1, userId);
-        preparedStatement.setInt(2, postId);
+        preparedStatement.setInt(1, postId);
+        preparedStatement.setInt(2, userId);
 
         ResultSet resultSet = preparedStatement.executeQuery();
 

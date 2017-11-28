@@ -1,6 +1,5 @@
 package com.shrralis.ssblog.servlet.post;
 
-import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.PostServiceImpl;
 import com.shrralis.ssblog.service.interfaces.IPostService;
 import com.shrralis.ssblog.servlet.base.ServletWithGsonProcessor;
@@ -15,17 +14,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.sql.SQLException;
 
-@WebServlet("/")
-public class GetAllPostsServlet extends ServletWithGsonProcessor {
-    private static Logger logger = LoggerFactory.getLogger(GetAllPostsServlet.class);
+@WebServlet("/post")
+public class GetPostServlet extends ServletWithGsonProcessor {
+    private static Logger logger = LoggerFactory.getLogger(GetPostServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         IPostService postService;
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/posts.jsp");
+        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/post.jsp");
 
         try {
             postService = new PostServiceImpl();
@@ -40,10 +38,13 @@ public class GetAllPostsServlet extends ServletWithGsonProcessor {
             }
             return;
         }
-        req.setAttribute("response", postService.getAll(getGson().fromJson(
-                URLDecoder.decode(req.getSession(false).getAttribute("user").toString(), "UTF-8"),
-                User.class
-        )));
+
+        try {
+            req.setAttribute("response", postService.get(Integer.valueOf(req.getParameter("id"))));
+        } catch (NumberFormatException e) {
+            logger.debug("Exception!", e);
+            return;
+        }
 
         try {
             dispatcher.forward(req, resp);
