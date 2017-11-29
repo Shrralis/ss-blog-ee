@@ -1,5 +1,8 @@
 package com.shrralis.ssblog.servlet.post;
 
+import com.shrralis.ssblog.dto.PostUpdaterDTO;
+import com.shrralis.ssblog.entity.Post;
+import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.PostServiceImpl;
 import com.shrralis.ssblog.service.interfaces.IPostService;
 import com.shrralis.ssblog.servlet.base.ServletWithGsonProcessor;
@@ -14,6 +17,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.sql.SQLException;
 
 @WebServlet("/post")
@@ -24,6 +28,7 @@ public class GetPostServlet extends ServletWithGsonProcessor {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         IPostService postService;
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/post.jsp");
+        Integer postId = Integer.valueOf(req.getParameter("id"));
 
         try {
             postService = new PostServiceImpl();
@@ -40,11 +45,26 @@ public class GetPostServlet extends ServletWithGsonProcessor {
         }
 
         try {
-            req.setAttribute("response", postService.get(Integer.valueOf(req.getParameter("id"))));
+            req.setAttribute("response", postService.get(postId));
         } catch (NumberFormatException e) {
             logger.debug("Exception!", e);
             return;
         }
+
+        User user = getGson().fromJson(
+                URLDecoder.decode(req.getSession(false).getAttribute("user").toString(), "UTF-8"),
+                User.class
+        );
+        JsonResponse response = postService.get(postId);
+
+        req.setAttribute("scope", user.getScope().name());
+        req.setAttribute("user_id", user.getId());
+        req.setAttribute("access", postService.getUsersWithAccess(((Post) response.getData().get(0)).getId(), user)
+                .getData()
+                .stream()
+                .anyMatch(v -> ((PostUpdaterDTO) v).getUserId().equals(user.getId()) &&
+                        ((PostUpdaterDTO) v).isPostUpdater())
+        );
 
         try {
             dispatcher.forward(req, resp);

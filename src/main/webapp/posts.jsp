@@ -6,9 +6,12 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://sargue.net/jsptags/time" prefix="javatime" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
     <title>Shrralis SS Blog</title>
 
     <link rel="stylesheet" type="text/css" href="styles/default.css">
@@ -25,7 +28,7 @@
 <main class="container">
     <c:if test="${response.getResult() == 0}">
         <c:forEach items="${response.getData()}" var="post">
-            <div class="post" style="margin: 32px auto">
+            <div class="post">
                 <h1 class="post-header">
                     <a href="/post?id=${post.getId()}">
                         <c:out value="${post.getTitle()}"/>
@@ -56,16 +59,16 @@
                     <c:out value="${post.getDescription()}"/>
                 </div>
 
-                <div class="post-body">
+                <div class="post-body short">
                     <c:out value="${post.getText()}"/>
-                    <br/>
-                    <br/>
-                    <a href="/post?id=${post.getId()}">Read full</a>
                 </div>
 
+                <a href="/post?id=${post.getId()}">Read full</a>
+
                 <h5 class="post-details">
-                    <a href="/user?id=${post.getCreator().getId()}">${post.getCreator().getLogin()}</a>,
-                        ${post.getCreatedAt()}
+                    <javatime:format value="${post.getCreatedAt()}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedDate"/>
+
+                    <a href="/user?id=${post.getCreator().getId()}">${post.getCreator().getLogin()}</a>, ${parsedDate}
                 </h5>
             </div>
         </c:forEach>

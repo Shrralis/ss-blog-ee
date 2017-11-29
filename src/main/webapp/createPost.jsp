@@ -9,29 +9,38 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
     <title>Shrralis SS Blog | Create post</title>
+
+    <link rel="stylesheet" type="text/css" href="styles/default.css">
 </head>
 <body>
-<div>
-    <a href="/">Main</a>
+<nav>
+    <button class="btn-menu" type="button" onclick="window.location.href='/'">Main</button>
 
-    <a href="/signIn">Logout</a>
+    <button class="btn-menu" type="button" onclick="window.location.href='/myPosts'">My posts</button>
+
+    <button class="btn-menu" type="button" onclick="window.location.href='/signIn'">Logout</button>
+</nav>
+
+<div class="container">
+    <form class="center post-form" action="/createPost" method="post">
+        <input type="text" name="title" placeholder="Title" value="${title}"/>
+        <br/>
+        <input type="text" name="description" placeholder="Description" value="${description}"/>
+        <br/>
+        <textarea type="text" name="text" placeholder="Text">${text}</textarea>
+        <br/>
+        <button type="submit" class="btn-primary">Create</button>
+
+        <c:if test="${response.getResult() != 0}">
+            <br/>
+            <span class="center error">
+                <c:out value="${response.getError().getErrmsg()}"/>
+            </span>
+        </c:if>
+    </form>
 </div>
-
-<form action="/createPost" method="post">
-    <input type="text" name="title" placeholder="Title" value="${title}"/>
-    <br/>
-    <input type="text" name="description" placeholder="Description" value="${description}"/>
-    <br/>
-    <textarea type="text" name="text" placeholder="Text">${text}</textarea>
-    <br/>
-    <button type="submit">Create</button>
-</form>
-
-<c:if test="${response.getResult() != 0}">
-    <span style="color: #F00;">
-        <c:out value="${reponse.getError().getErrormsg()}"/>
-    </span>
-</c:if>
 </body>
 </html>

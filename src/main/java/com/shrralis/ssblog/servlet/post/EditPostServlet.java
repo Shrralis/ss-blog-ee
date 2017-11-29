@@ -5,6 +5,7 @@ import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.PostServiceImpl;
 import com.shrralis.ssblog.service.interfaces.IPostService;
 import com.shrralis.ssblog.servlet.base.ServletWithGsonProcessor;
+import com.shrralis.tools.model.JsonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,8 @@ public class EditPostServlet extends ServletWithGsonProcessor {
         try {
             IPostService postService = new PostServiceImpl();
 
-            req.setAttribute("response", postService.get(Integer.valueOf(req.getParameter("id"))));
+            req.setAttribute("postResponse", postService.get(Integer.valueOf(req.getParameter("id"))));
+            req.setAttribute("error", req.getParameter("error"));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception!", e);
         }
@@ -34,8 +36,10 @@ public class EditPostServlet extends ServletWithGsonProcessor {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        JsonResponse response = null;
+
         try {
-            req.setAttribute("response", new PostServiceImpl().edit(new NewEditPostDTO.Builder()
+            response = new PostServiceImpl().edit(new NewEditPostDTO.Builder()
                     .setCookieUser(getGson().fromJson(
                             URLDecoder.decode(req.getSession(false).getAttribute("user").toString(), "UTF-8"),
                             User.class
@@ -45,10 +49,16 @@ public class EditPostServlet extends ServletWithGsonProcessor {
                     .setPostDescription(req.getParameter("description"))
                     .setPostText(req.getParameter("text"))
                     .setPosted(Boolean.valueOf(req.getParameter("posted")))
-                    .build()));
+                    .build());
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception!", e);
         }
-        resp.sendRedirect("/post?id=" + req.getParameter("id"));
+
+        if (response != null && response.getResult().equals(JsonResponse.OK)) {
+            resp.sendRedirect("/post?id=" + req.getParameter("id"));
+        } else {
+            resp.sendRedirect("/editPost?id=" + req.getParameter("id") +
+                    "&error=" + response.getError().getErrmsg());
+        }
     }
 }

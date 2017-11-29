@@ -45,6 +45,7 @@ public class CreatePostServlet extends ServletWithGsonProcessor {
             dispatcher.forward(req, resp);
             return;
         }
+        req.setCharacterEncoding("UTF-8");
 
         NewEditPostDTO dto = new NewEditPostDTO.Builder()
                 .setCookieUser(getGson().fromJson(

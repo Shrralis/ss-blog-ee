@@ -9,46 +9,65 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
     <title>Shrralis SS Blog | Edit post</title>
+
+    <link rel="stylesheet" type="text/css" href="styles/default.css">
 </head>
 <body>
-<div>
-    <a href="/">Main</a>
+<nav>
+    <button class="btn-menu" type="button" onclick="window.location.href='/'">Main</button>
 
-    <a href="/signIn">Logout</a>
+    <button class="btn-menu" type="button" onclick="window.location.href='/myPosts'">My posts</button>
+
+    <button class="btn-menu" type="button" onclick="window.location.href='/signIn'">Logout</button>
+</nav>
+
+<div class="container">
+    <c:choose>
+        <c:when test="${postResponse != null && postResponse.getResult() == 0}">
+            <form class="center post-form" action="/editPost" method="post">
+                <input type="hidden" name="id" value="${postResponse.getData().get(0).getId()}"/>
+
+                <input type="text" name="title" placeholder="Title"
+                       value="${postResponse.getData().get(0).getTitle()}"/>
+                <br/>
+                <input type="text" name="description" placeholder="Description"
+                       value="${postResponse.getData().get(0).getDescription()}"/>
+                <br/>
+                <textarea type="text" name="text"
+                          placeholder="Text">${postResponse.getData().get(0).getText()}</textarea>
+                <br/>
+                <button class="btn-primary" type="submit">Edit</button>
+
+                <button class="btn-default" type="button"
+                        onclick="window.location.href='/setPosted?id=${postResponse.getData().get(0).getId()}&posted=${!postResponse.getData().get(0).isPosted()}'">
+                    <c:choose>
+                        <c:when test="${!postResponse.getData().get(0).isPosted()}">
+                            Post
+                        </c:when>
+
+                        <c:otherwise>
+                            Set as draft
+                        </c:otherwise>
+                    </c:choose>
+                </button>
+
+                <c:if test="${error != null}">
+                    <span class="center error">
+                        <c:out value="${error}"/>
+                    </span>
+                </c:if>
+            </form>
+        </c:when>
+
+        <c:otherwise>
+            <span class="center error">
+                <c:out value="${postReponse.getError().getErrormsg()}"/>
+            </span>
+        </c:otherwise>
+    </c:choose>
 </div>
-
-<c:if test="${response != null && response.getResult() == 0}">
-    <form action="/editPost" method="post">
-        <input type="hidden" name="id" value="${response.getData().get(0).getId()}"/>
-
-        <input type="text" name="title" placeholder="Title" value="${response.getData().get(0).getTitle()}"/>
-        <br/>
-        <input type="text" name="description" placeholder="Description"
-               value="${response.getData().get(0).getDescription()}"/>
-        <br/>
-        <textarea type="text" name="text" placeholder="Text">${response.getData().get(0).getText()}</textarea>
-        <br/>
-        <button type="submit">Edit</button>
-
-        <a href="/setPosted?id=${response.getData().get(0).getId()}&posted=${!response.getData().get(0).isPosted()}">
-            <c:choose>
-                <c:when test="${!response.getData().get(0).isPosted()}">
-                    Post
-                </c:when>
-
-                <c:otherwise>
-                    Set as draft
-                </c:otherwise>
-            </c:choose>
-        </a>
-    </form>
-</c:if>
-
-<c:if test="${response.getResult() != 0}">
-    <span style="color: #F00;">
-        <c:out value="${reponse.getError().getErrormsg()}"/>
-    </span>
-</c:if>
 </body>
 </html>

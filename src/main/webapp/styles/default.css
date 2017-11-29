@@ -51,10 +51,13 @@ button:hover {
     background-color: #dddddd;
 }
 
-.sign-form {
+.sign-form, .post-form {
+    margin-top: 150px;
+}
+
+form {
     padding: 30px;
     max-width: calc(300px + 60px);
-    margin-top: 150px;
     -webkit-box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
     box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
@@ -65,7 +68,7 @@ button:hover {
 
 }
 
-.sign-form input {
+form input, form textarea {
     margin: 10px;
     padding: 15px;
     width: 340px;
@@ -76,28 +79,35 @@ button:hover {
     font-size: 14pt;
 }
 
-.sign-form input::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+form textarea {
+    min-width: 340px;
+    max-width: 340px;
+    min-height: 55px;
+    height: 100px;
+}
+
+form input::-webkit-input-placeholder, form textarea::-webkit-input-placeholder { /* Chrome/Opera/Safari */
     color: #000000;
 }
 
-.sign-form input::-moz-placeholder { /* Firefox 19+ */
+form input::-moz-placeholder, form textarea::-moz-placeholder { /* Firefox 19+ */
     color: #000000;
 }
 
-.sign-form input:-ms-input-placeholder { /* IE 10+ */
+form input:-ms-input-placeholder, form textarea:-ms-input-placeholder { /* IE 10+ */
     color: #000000;
 }
 
-.sign-form input:-moz-placeholder { /* Firefox 18- */
+form input:-moz-placeholder, form textarea:-moz-placeholder { /* Firefox 18- */
     color: #000000;
 }
 
-.sign-form button.btn-primary {
+form button.btn-primary {
     margin: 10px;
     width: 205px;
 }
 
-.sign-form button.btn-default {
+form button.btn-default {
     margin: 10px;
     width: 110px;
 }
@@ -113,6 +123,9 @@ nav {
     padding: 15px 30px;
     background-color: #6924ff;
     color: #ffffff;
+    -webkit-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
 }
 
 nav .btn-default {
@@ -125,9 +138,9 @@ nav .btn-default {
     padding: 10px;
     max-width: 70%;
     border-radius: 10px;
-    -webkit-box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
-    -moz-box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
-    box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
+    -webkit-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
     transition: all 300ms;
 }
 
@@ -187,6 +200,52 @@ nav .btn-default {
     font-size: 14pt;
 }
 
+.post-body a, .post a, .post-body a:visited, .post a:visited {
+    color: #7838ff;
+}
+
+.post a {
+    margin: 5px 0 5px 5px;
+}
+
 .post-details {
-    margin: 5px;
+    padding: 10px;
+    background-color: #eeeeee;
+}
+
+.post-details a, .post-details a:visited {
+    color: #575757;
+}
+
+.short {
+    max-height: 135px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+.user {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 10px;
+    background-color: #eeeeee;
+}
+
+.user:hover {
+    background-color: #dddddd;
+}
+
+.user div.name {
+    min-width: 100px;
+}
+
+button.red {
+    background-color: #ff0000;
+    color: #dddddd;
+}
+
+button.green {
+    background-color: #00ff00;
+    color: #000000;
 }

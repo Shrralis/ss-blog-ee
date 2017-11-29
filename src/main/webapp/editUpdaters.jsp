@@ -9,35 +9,53 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
     <title>Shrralis SS Blog | Edit updaters</title>
+
+    <link rel="stylesheet" type="text/css" href="styles/default.css">
 </head>
 <body>
-<div>
-    <a href="/">Main</a>
+<nav>
+    <button class="btn-menu" type="button" onclick="window.location.href='/'">Main</button>
 
-    <a href="/signIn">Logout</a>
-</div>
+    <button class="btn-menu" type="button" onclick="window.location.href='/myPosts'">My posts</button>
 
-<c:if test="${response.getResult() == 0}">
-    <c:forEach items="${response.getData()}" var="user">
-        <div class="user">
-            <c:out value="${user.getUserLogin()}"/>
+    <button class="btn-menu" type="button" onclick="window.location.href='/signIn'">Logout</button>
+</nav>
 
-            <c:choose>
-                <c:when test="${user.isPostUpdater()}">
-                    <a href="/editUpdaters?action=revoke&user_id=${user.getUserId()}&id=${id}">Revoke</a>
-                </c:when>
+<main class="container">
+    <div class="center">
+        <c:if test="${response.getResult() == 0}">
+            <c:forEach items="${response.getData()}" var="user">
+                <div class="user">
+                    <div class="name">
+                        <c:out value="${user.getUserLogin()}"/>
+                    </div>
 
-                <c:otherwise>
-                    <a href="/editUpdaters?action=add&user_id=${user.getUserId()}&id=${id}">Grant</a>
-                </c:otherwise>
-            </c:choose>
-        </div>
-    </c:forEach>
-</c:if>
+                    <c:choose>
+                        <c:when test="${user.isPostUpdater()}">
+                            <button class="btn-primary red" type="button"
+                                    onclick="window.location.href='/editUpdaters?action=revoke&user_id=${user.getUserId()}&id=${id}'">
+                                Revoke
+                            </button>
+                        </c:when>
 
-<c:if test="${response.getError() != null}">
-    <span style="color: #f00">${response.getError().getErrormsg()}</span>
-</c:if>
+                        <c:otherwise>
+                            <button class="btn-primary green" type="button"
+                                    onclick="window.location.href='/editUpdaters?action=add&user_id=${user.getUserId()}&id=${id}'">
+                                Grant
+                            </button>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </c:forEach>
+        </c:if>
+
+        <c:if test="${response.getError() != null}">
+            <span class="error center">${response.getError().getErrormsg()}</span>
+        </c:if>
+    </div>
+</main>
 </body>
 </html>

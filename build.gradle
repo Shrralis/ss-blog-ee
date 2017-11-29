@@ -21,6 +21,8 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.2'
     // JSTL for easier JSPing
     compile 'javax.servlet:jstl:1.2'
+    // JSP datetime functions
+    compile 'net.sargue:java-time-jsptags:1.1.4'
     // Tests
     testCompile 'com.tngtech.java:junit-dataprovider:1.13.1'
     testCompile 'junit:junit:4.12'
