@@ -22,25 +22,29 @@ public class DeletePostDTO {
         this.postId = postId;
     }
 
-    public static class Builder {
-        private DeletePostDTO dto;
+    public static final class Builder {
+        private DeletePostDTO deletePostDTO;
 
-        public Builder() {
-            dto = new DeletePostDTO();
+        private Builder() {
+            deletePostDTO = new DeletePostDTO();
         }
 
-        public Builder setCookieUser(User user) {
-            dto.setCookieUser(user);
+        public static Builder aDeletePostDTO() {
+            return new Builder();
+        }
+
+        public Builder setCookieUser(User cookieUser) {
+            deletePostDTO.setCookieUser(cookieUser);
             return this;
         }
 
-        public Builder setPostId(Integer id) {
-            dto.setPostId(id);
+        public Builder setPostId(Integer postId) {
+            deletePostDTO.setPostId(postId);
             return this;
         }
 
         public DeletePostDTO build() {
-            return dto;
+            return deletePostDTO;
         }
     }
 }

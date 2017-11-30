@@ -1,7 +1,7 @@
 package com.shrralis.ssblog.servlet.post;
 
+import com.shrralis.ssblog.config.ImagesConfig;
 import com.shrralis.ssblog.dto.NewEditPostDTO;
-import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.PostServiceImpl;
 import com.shrralis.ssblog.service.interfaces.IPostService;
 import com.shrralis.ssblog.servlet.base.ServletWithGsonProcessor;
@@ -12,14 +12,15 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.sql.SQLException;
 
 @WebServlet("/createPost")
+@MultipartConfig(maxFileSize = ImagesConfig.IMAGES_MAX_SIZE)
 public class CreatePostServlet extends ServletWithGsonProcessor {
     private static Logger logger = LoggerFactory.getLogger(GetAllPostsServlet.class);
 
@@ -30,8 +31,8 @@ public class CreatePostServlet extends ServletWithGsonProcessor {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        IPostService service;
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/createPost.jsp");
+        IPostService service;
 
         try {
             service = new PostServiceImpl();
@@ -45,16 +46,14 @@ public class CreatePostServlet extends ServletWithGsonProcessor {
             dispatcher.forward(req, resp);
             return;
         }
-        req.setCharacterEncoding("UTF-8");
 
-        NewEditPostDTO dto = new NewEditPostDTO.Builder()
-                .setCookieUser(getGson().fromJson(
-                        URLDecoder.decode(req.getSession(false).getAttribute("user").toString(), "UTF-8"),
-                        User.class
-                ))
+        NewEditPostDTO dto = NewEditPostDTO.Builder.aNewEditPostDTO()
+                .setCookieUser(getCookieUser(req))
                 .setPostTitle(req.getParameter("title"))
                 .setPostDescription(req.getParameter("description"))
                 .setPostText(req.getParameter("text"))
+                .setDirectoryPath(req.getServletContext().getRealPath("/") + "/.." + ImagesConfig.IMAGES_ROOT_PATH)
+                .setImagePart(req.getPart("image"))
                 .build();
         JsonResponse response = service.create(dto);
 

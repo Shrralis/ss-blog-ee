@@ -24,7 +24,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public JsonResponse getAllUsers() {
+    public JsonResponse getAllUsers(User requester) {
         try {
             return new JsonResponse(dao.getAllUsers(false));
         } catch (SQLException e) {
@@ -36,11 +36,11 @@ public class UserServiceImpl implements IUserService {
     @Override
     public JsonResponse signIn(String login, String password) {
         if (TextUtil.isEmpty(login)) {
-            return new JsonResponse(JsonError.Error.EMPTY_LOGIN);
+            return new JsonResponse(JsonError.Error.LOGIN_EMPTY);
         }
 
         if (TextUtil.isEmpty(password)) {
-            return new JsonResponse(JsonError.Error.EMPTY_PASSWORD);
+            return new JsonResponse(JsonError.Error.PASSWORD_EMPTY);
         }
 
         try {
@@ -64,7 +64,7 @@ public class UserServiceImpl implements IUserService {
         }
 
         if (!password.equals(user.getPassword())) {
-            return new JsonResponse(JsonError.Error.INCORRECT_PASSWORD);
+            return new JsonResponse(JsonError.Error.PASSWORD_INCORRECT);
         }
         return new JsonResponse(user);
     }
@@ -72,11 +72,11 @@ public class UserServiceImpl implements IUserService {
     @Override
     public JsonResponse signUp(String login, String password) {
         if (TextUtil.isEmpty(login)) {
-            return new JsonResponse(JsonError.Error.EMPTY_LOGIN);
+            return new JsonResponse(JsonError.Error.LOGIN_EMPTY);
         }
 
         if (TextUtil.isEmpty(password)) {
-            return new JsonResponse(JsonError.Error.EMPTY_PASSWORD);
+            return new JsonResponse(JsonError.Error.PASSWORD_EMPTY);
         }
 
         try {
@@ -90,7 +90,7 @@ public class UserServiceImpl implements IUserService {
             if (dao.getByLogin(login, false) != null) {
                 return new JsonResponse(JsonError.Error.USER_ALREADY_EXISTS);
             }
-            return new JsonResponse(dao.add(new User.Builder()
+            return new JsonResponse(dao.add(User.Builder.anUser()
                     .setLogin(login)
                     .setPassword(password)
                     .build()));

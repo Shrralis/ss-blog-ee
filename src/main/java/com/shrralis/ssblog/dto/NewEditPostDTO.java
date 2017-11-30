@@ -2,6 +2,7 @@ package com.shrralis.ssblog.dto;
 
 import com.shrralis.ssblog.entity.User;
 
+import javax.servlet.http.Part;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,45 +58,75 @@ public class NewEditPostDTO {
         post.put("posted", posted);
     }
 
-    public static class Builder {
-        private NewEditPostDTO dto;
+    public String getDirectoryPath() {
+        return String.valueOf(post.get("image_path"));
+    }
 
-        public Builder() {
-            dto = new NewEditPostDTO();
+    public void setDirectoryPath(String path) {
+        post.put("image_path", path);
+    }
+
+    public Part getImagePart() {
+        return (Part) post.get("image_part");
+    }
+
+    public void setImagePart(Part part) {
+        post.put("image_part", part);
+    }
+
+    public static final class Builder {
+        private NewEditPostDTO newEditPostDTO;
+
+        private Builder() {
+            newEditPostDTO = new NewEditPostDTO();
         }
 
-        public Builder setCookieUser(User user) {
-            dto.setCookieUser(user);
+        public static Builder aNewEditPostDTO() {
+            return new Builder();
+        }
+
+        public Builder setCookieUser(User cookieUser) {
+            newEditPostDTO.setCookieUser(cookieUser);
             return this;
         }
 
         public Builder setPostId(Integer id) {
-            dto.setPostId(id);
+            newEditPostDTO.setPostId(id);
             return this;
         }
 
         public Builder setPostTitle(String title) {
-            dto.setPostTitle(title);
+            newEditPostDTO.setPostTitle(title);
             return this;
         }
 
         public Builder setPostDescription(String description) {
-            dto.setPostDescription(description);
+            newEditPostDTO.setPostDescription(description);
             return this;
         }
 
         public Builder setPostText(String text) {
-            dto.setPostText(text);
+            newEditPostDTO.setPostText(text);
             return this;
         }
 
         public Builder setPosted(boolean posted) {
-            dto.setPosted(posted);
+            newEditPostDTO.setPosted(posted);
+            return this;
+        }
+
+        public Builder setDirectoryPath(String path) {
+            newEditPostDTO.setDirectoryPath(path);
+            return this;
+        }
+
+        public Builder setImagePart(Part part) {
+            newEditPostDTO.setImagePart(part);
             return this;
         }
 
         public NewEditPostDTO build() {
-            return dto;
+            return newEditPostDTO;
         }
     }
 }

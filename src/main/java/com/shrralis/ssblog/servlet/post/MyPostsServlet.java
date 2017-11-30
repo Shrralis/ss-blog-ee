@@ -22,9 +22,9 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet("/")
-public class GetAllPostsServlet extends ServletWithGsonProcessor {
-    private static Logger logger = LoggerFactory.getLogger(GetAllPostsServlet.class);
+@WebServlet("/myPosts")
+public class MyPostsServlet extends ServletWithGsonProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(MyPostsServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -46,21 +46,27 @@ public class GetAllPostsServlet extends ServletWithGsonProcessor {
         }
 
         User user = getCookieUser(req);
-        JsonResponse response = postService.getAll(user);
+        JsonResponse response = postService.getByUser(GetPostDTO.Builder.aGetPostDTO()
+                .setCookieUser(user)
+                .setUserId(user.getId())
+                .build());
         Map<Integer, Boolean> access = new HashMap<>();
 
         req.setAttribute("response", response);
         req.setAttribute("scope", user.getScope().name());
         req.setAttribute("user_id", user.getId());
-        response.getData().forEach(p -> access.put(
-                ((Post) p).getId(),
-                postService.getUsersWithAccess(GetPostDTO.Builder.aGetPostDTO()
-                        .setCookieUser(user)
-                        .setPostId(((Post) p).getId())
-                        .build()).getData().stream()
-                        .anyMatch(v -> ((PostUpdaterDTO) v).getUserId().equals(user.getId()) &&
-                                ((PostUpdaterDTO) v).isPostUpdater())
-        ));
+
+        if (response.getResult().equals(JsonResponse.OK)) {
+            response.getData().forEach(p -> access.put(
+                    ((Post) p).getId(),
+                    postService.getUsersWithAccess(GetPostDTO.Builder.aGetPostDTO()
+                            .setCookieUser(user)
+                            .setPostId(((Post) p).getId())
+                            .build()).getData().stream()
+                            .anyMatch(v -> ((PostUpdaterDTO) v).getUserId().equals(user.getId()) &&
+                                    ((PostUpdaterDTO) v).isPostUpdater())
+            ));
+        }
         req.setAttribute("access", access);
 
         try {

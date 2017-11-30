@@ -28,56 +28,73 @@
 
     <button class="btn-menu" type="button" onclick="window.location.href='/myPosts'">My posts</button>
 
+    <form action="search">
+        <input name="word" placeholder="Search by word">
+
+        <button class="btn-menu" type="submit">
+            Search
+        </button>
+    </form>
+
     <button class="btn-menu" type="button" onclick="window.location.href='/signIn'">Logout</button>
 </nav>
 
 <main class="container">
     <c:if test="${response.getResult() == 0}">
-        <div class="post">
-            <h1 class="post-header">
-                <c:out value="${response.getData().get(0).getTitle()}"/>
-            </h1>
-
-            <div class="post-actions">
-                <c:choose>
-                    <c:when test="${response.getData().get(0).isPosted()}">
-                        posted
-                    </c:when>
-
-                    <c:otherwise>
-                        isn't posted yet
-                    </c:otherwise>
-                </c:choose>
-
-                <c:if test="${access || response.getData().get(0).getCreator().getId().equals(user_id)}">
-                    <a href="/editPost?id=${post.getId()}">Edit</a>
-                </c:if>
-
-                <c:if test="${response.getData().get(0).getCreator().getId().equals(user_id)}">
-                    <a href="/editUpdaters?id=${response.getData().get(0).getId()}">Edit updaters</a>
-                </c:if>
-
-
-                <c:if test="${response.getData().get(0).getCreator().getId().equals(user_id) || \"ADMIN\".equals(scope)}">
-                    <a href="/deletePost?id=${post.getId()}">Delete</a>
-                </c:if>
-            </div>
-
-            <div class="post-description">
-                <c:out value="${response.getData().get(0).getDescription()}"/>
-            </div>
+        <div class="post center">
+            <c:if test="${response.getData().get(0).getImage() != null}">
+                <div class="post-image"
+                     style="background-image: url('/getImage?id=${response.getData().get(0).getImage().getId()}'); background-repeat: no-repeat; background-size: cover">
+                        <%--<img src="">--%>
+                </div>
+            </c:if>
 
             <div class="post-body">
-                <c:out value="${response.getData().get(0).getText()}"/>
+                <h1 class="post-header">
+                    <c:out value="${response.getData().get(0).getTitle()}"/>
+                </h1>
+
+                <div class="post-actions">
+                    <c:choose>
+                        <c:when test="${response.getData().get(0).isPosted()}">
+                            posted
+                        </c:when>
+
+                        <c:otherwise>
+                            isn't posted yet
+                        </c:otherwise>
+                    </c:choose>
+
+                    <c:if test="${access || response.getData().get(0).getCreator().getId().equals(user_id)}">
+                        <a href="/editPost?id=${response.getData().get(0).getId()}">Edit</a>
+                    </c:if>
+
+                    <c:if test="${response.getData().get(0).getCreator().getId().equals(user_id)}">
+                        <a href="/editUpdaters?id=${response.getData().get(0).getId()}">Edit updaters</a>
+                    </c:if>
+
+
+                    <c:if test="${response.getData().get(0).getCreator().getId().equals(user_id) || \"ADMIN\".equals(scope)}">
+                        <a href="/deletePost?id=${response.getData().get(0).getId()}">Delete</a>
+                    </c:if>
+                </div>
+
+                <div class="post-description">
+                    <c:out value="${response.getData().get(0).getDescription()}"/>
+                </div>
+
+                <div class="post-text">
+                    <c:out value="${response.getData().get(0).getText()}"/>
+                </div>
+
+                <h5 class="post-details">
+                    <javatime:format value="${response.getData().get(0).getCreatedAt()}" pattern="yyyy-MM-dd HH:mm:ss"
+                                     var="parsedDate"/>
+
+                    <a href="/user?id=${response.getData().get(0).getCreator().getId()}">
+                            ${response.getData().get(0).getCreator().getLogin()}</a>, ${parsedDate}
+                </h5>
             </div>
-
-            <h5 class="post-details">
-                <javatime:format value="${response.getData().get(0).getCreatedAt()}" pattern="yyyy-MM-dd HH:mm:ss"
-                                 var="parsedDate"/>
-
-                <a href="/user?id=${response.getData().get(0).getCreator().getId()}">
-                        ${response.getData().get(0).getCreator().getLogin()}</a>, ${parsedDate}
-            </h5>
         </div>
     </c:if>
 

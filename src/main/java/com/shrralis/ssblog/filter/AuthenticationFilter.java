@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -19,6 +20,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 @WebFilter("/*")
@@ -27,7 +29,6 @@ public class AuthenticationFilter implements Filter {
     private static final Gson gson = new GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .serializeNulls()
-//            .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
             .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -61,6 +62,7 @@ public class AuthenticationFilter implements Filter {
             chain.doFilter(request, response);
             return;
         }
+        request.setCharacterEncoding("UTF-8");
 
         IUserDAO dao;
 
@@ -73,43 +75,34 @@ public class AuthenticationFilter implements Filter {
 
         HttpServletResponse res = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
+        Cookie cookie = getCookie("user", req);
         User user = null;
-        User u = null;
+        User userFromDao = null;
 
-        try {
-            if (session != null) {
-                u = gson.fromJson(
-                        URLDecoder.decode(session.getAttribute("user") + "", "UTF-8"),
-                        User.class
-                );
+        if (session != null || cookie != null) {
+            try {
+                user = gson.fromJson(
+                        URLDecoder.decode((session != null ? session.getAttribute("user") : cookie.getValue())
+                                + "", "UTF-8"), User.class);
 
-                if (u != null) {
-                    user = dao.getById(u.getId(), true);
+                if (user != null) {
+                    userFromDao = dao.getById(user.getId(), true);
                 }
+            } catch (SQLException e) {
+                logger.debug("Exception with recognizing the user!", e);
+                return;
             }
-        } catch (SQLException e) {
-            logger.debug("Exception!", e);
-            return;
         }
 
-        if ((session == null || user == null || User.Scope.BANNED.equals(user.getScope()) ||
-                !user.getPassword().equals(u.getPassword())) && !(uri.endsWith("signIn") || uri.endsWith("signUp"))) {
+        if ((userFromDao == null || User.Scope.BANNED.equals(user.getScope()) ||
+                !userFromDao.getPassword().equals(user.getPassword()))
+                && !(uri.endsWith("signIn") || uri.endsWith("signUp"))) {
             res.sendRedirect("/signIn");
         } else {
-            if (user != null) {
-                if (uri.endsWith("setUserScope") && !User.Scope.ADMIN.equals(user.getScope())) {
-                    res.sendRedirect("/");
-                    return;
-                }
-
-                if (uri.endsWith("createPost") && User.Scope.WRITER.ordinal() > user.getScope().ordinal()) {
-                    res.sendRedirect("/");
-                    return;
-                } else if ((uri.endsWith("setPostUpdater") || uri.endsWith("removePostUpdater") ||
-                        uri.endsWith("setPosted")) && User.Scope.WRITER.ordinal() > user.getScope().ordinal()) {
-                    res.sendRedirect("/");
-                    return;
-                }
+            if (user != null && ((uri.endsWith("setUserScope") && !User.Scope.ADMIN.equals(user.getScope())) ||
+                    (uri.endsWith("createPost") && User.Scope.WRITER.ordinal() > user.getScope().ordinal()))) {
+                res.sendRedirect("/");
+                return;
             }
             chain.doFilter(request, response);
         }
@@ -118,5 +111,12 @@ public class AuthenticationFilter implements Filter {
     @Override
     public void destroy() {
         // here we can close resources
+    }
+
+    private Cookie getCookie(final String name, final HttpServletRequest request) {
+        return request.getCookies() == null ? null : Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 }

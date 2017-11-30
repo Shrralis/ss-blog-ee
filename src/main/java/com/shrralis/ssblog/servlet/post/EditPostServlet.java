@@ -1,7 +1,7 @@
 package com.shrralis.ssblog.servlet.post;
 
+import com.shrralis.ssblog.dto.GetPostDTO;
 import com.shrralis.ssblog.dto.NewEditPostDTO;
-import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.PostServiceImpl;
 import com.shrralis.ssblog.service.interfaces.IPostService;
 import com.shrralis.ssblog.servlet.base.ServletWithGsonProcessor;
@@ -14,7 +14,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.sql.SQLException;
 
 @WebServlet("/editPost")
@@ -26,7 +25,10 @@ public class EditPostServlet extends ServletWithGsonProcessor {
         try {
             IPostService postService = new PostServiceImpl();
 
-            req.setAttribute("postResponse", postService.get(Integer.valueOf(req.getParameter("id"))));
+            req.setAttribute("postResponse", postService.get(GetPostDTO.Builder.aGetPostDTO()
+                    .setPostId(Integer.valueOf(req.getParameter("id")))
+                    .setCookieUser(getCookieUser(req))
+                    .build()));
             req.setAttribute("error", req.getParameter("error"));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception!", e);
@@ -39,11 +41,8 @@ public class EditPostServlet extends ServletWithGsonProcessor {
         JsonResponse response = null;
 
         try {
-            response = new PostServiceImpl().edit(new NewEditPostDTO.Builder()
-                    .setCookieUser(getGson().fromJson(
-                            URLDecoder.decode(req.getSession(false).getAttribute("user").toString(), "UTF-8"),
-                            User.class
-                    ))
+            response = new PostServiceImpl().edit(NewEditPostDTO.Builder.aNewEditPostDTO()
+                    .setCookieUser(getCookieUser(req))
                     .setPostId(Integer.valueOf(req.getParameter("id")))
                     .setPostTitle(req.getParameter("title"))
                     .setPostDescription(req.getParameter("description"))

@@ -11,6 +11,7 @@ public class Post {
     private User creator;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
+    private Image image;
 
     public Integer getId() {
         return id;
@@ -76,6 +77,14 @@ public class Post {
         this.updatedAt = updatedAt;
     }
 
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
     @Override
     public String toString() {
         return "Post{" +
@@ -87,11 +96,20 @@ public class Post {
                 ", creator=" + creator +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
+                ", image=" + image +
                 '}';
     }
 
     public static final class Builder {
-        private Post post = new Post();
+        private Post post;
+
+        private Builder() {
+            post = new Post();
+        }
+
+        public static Builder aPost() {
+            return new Builder();
+        }
 
         public Builder setId(Integer id) {
             post.setId(id);
@@ -130,6 +148,11 @@ public class Post {
 
         public Builder setUpdatedAt(LocalDateTime updatedAt) {
             post.setUpdatedAt(updatedAt);
+            return this;
+        }
+
+        public Builder setImage(Image image) {
+            post.setImage(image);
             return this;
         }
 

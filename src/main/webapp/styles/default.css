@@ -64,10 +64,6 @@ form {
     text-align: center;
 }
 
-.sign-form.header {
-
-}
-
 form input, form textarea {
     margin: 10px;
     padding: 15px;
@@ -118,7 +114,9 @@ form button.btn-default {
 }
 
 nav {
-    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
     height: 40px;
     padding: 15px 30px;
     background-color: #6924ff;
@@ -128,15 +126,59 @@ nav {
     box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
 }
 
-nav .btn-default {
-    margin-left: 10px;
-    margin-right: 10px;
+nav form {
+    margin: 0 10px;
+    padding: 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+nav form input {
+    margin: 0;
+    padding: 0 10px;
+    width: 170px;
+    height: 30px;
+    background-color: rgba(255, 255, 255, .1);
+    border: solid 1px rgba(255, 255, 255, .3);
+    border-radius: 20px;
+    color: #dddddd;
+    font-size: 14pt;
+}
+
+nav form input::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    color: #dddddd;
+}
+
+nav form input::-moz-placeholder { /* Firefox 19+ */
+    color: #dddddd;
+}
+
+nav form input:-ms-input-placeholder { /* IE 10+ */
+    color: #dddddd;
+}
+
+nav form input:-moz-placeholder { /* Firefox 18- */
+    color: #dddddd;
+}
+
+nav form button {
+    padding: 0 5px;
 }
 
 .post {
     margin: 30px auto;
-    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
     max-width: 70%;
+}
+
+.post-body {
+    margin: 0 5px;
+    padding: 10px;
+    min-width: calc(70% - 2 * 10px - 2 * 5px);
+    max-width: calc(70% - 2 * 10px - 2 * 5px);
     border-radius: 10px;
     -webkit-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
@@ -144,10 +186,28 @@ nav .btn-default {
     transition: all 300ms;
 }
 
-.post:hover {
+.post-image {
+    margin: 0 5px;
+    padding: 10px;
+    min-width: 30%;
+    width: 30%;
+    max-width: 30%;
+    border-radius: 10px;
+    -webkit-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.75);
+    transition: all 300ms;
+}
+
+.post-body:hover, .post-image:hover {
     -webkit-box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.75);
     box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.75);
+}
+
+.post-image img {
+    /*max-width: 100%;*/
+    /*max-height: 100%;*/
 }
 
 .btn-menu {
@@ -195,12 +255,12 @@ nav .btn-default {
     font-size: 11pt;
 }
 
-.post-body {
+.post-text {
     margin: 15px 5px 5px 5px;
     font-size: 14pt;
 }
 
-.post-body a, .post a, .post-body a:visited, .post a:visited {
+.post-text a, .post a, .post-text a:visited, .post a:visited {
     color: #7838ff;
 }
 

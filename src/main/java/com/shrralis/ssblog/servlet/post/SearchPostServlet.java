@@ -22,9 +22,9 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet("/")
-public class GetAllPostsServlet extends ServletWithGsonProcessor {
-    private static Logger logger = LoggerFactory.getLogger(GetAllPostsServlet.class);
+@WebServlet("/search")
+public class SearchPostServlet extends ServletWithGsonProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(SearchPostServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -46,7 +46,7 @@ public class GetAllPostsServlet extends ServletWithGsonProcessor {
         }
 
         User user = getCookieUser(req);
-        JsonResponse response = postService.getAll(user);
+        JsonResponse response = postService.search(req.getParameter("word"), user);
         Map<Integer, Boolean> access = new HashMap<>();
 
         req.setAttribute("response", response);

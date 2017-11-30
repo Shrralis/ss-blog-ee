@@ -64,7 +64,7 @@ public class PostUpdaterJdbcDAOImpl extends JdbcBasedDAO implements IPostUpdater
         ResultSet resultSet = preparedStatement.executeQuery();
 
         if (resultSet.next()) {
-            return new PostUpdater.Builder()
+            return PostUpdater.Builder.aPostUpdater()
                     .setPost(PostJdbcDAOImpl.getDao().getById(resultSet.getInt(POST_ID_COLUMN_NAME)))
                     .setUser(UserJdbcDAOImpl.getDao().getById(resultSet.getInt(USER_ID_COLUMN_NAME)))
                     .build();
@@ -80,7 +80,7 @@ public class PostUpdaterJdbcDAOImpl extends JdbcBasedDAO implements IPostUpdater
         ResultSet resultSet = preparedStatement.executeQuery();
 
         while (resultSet.next()) {
-            result.add(new PostUpdater.Builder()
+            result.add(PostUpdater.Builder.aPostUpdater()
                     .setPost(PostJdbcDAOImpl.getDao().getById(resultSet.getInt(POST_ID_COLUMN_NAME)))
                     .setUser(UserJdbcDAOImpl.getDao().getById(resultSet.getInt(USER_ID_COLUMN_NAME)))
                     .build());
@@ -104,7 +104,7 @@ public class PostUpdaterJdbcDAOImpl extends JdbcBasedDAO implements IPostUpdater
         ResultSet resultSet = preparedStatement.executeQuery();
 
         while (resultSet.next()) {
-            result.add(new PostUpdater.Builder()
+            result.add(PostUpdater.Builder.aPostUpdater()
                     .setPost(PostJdbcDAOImpl.getDao().getById(resultSet.getInt(POST_ID_COLUMN_NAME)))
                     .setUser(UserJdbcDAOImpl.getDao().getById(resultSet.getInt(USER_ID_COLUMN_NAME)))
                     .build());
@@ -128,7 +128,7 @@ public class PostUpdaterJdbcDAOImpl extends JdbcBasedDAO implements IPostUpdater
         ResultSet resultSet = preparedStatement.executeQuery();
 
         while (resultSet.next()) {
-            result.add(new PostUpdater.Builder()
+            result.add(PostUpdater.Builder.aPostUpdater()
                     .setPost(PostJdbcDAOImpl.getDao().getById(resultSet.getInt(POST_ID_COLUMN_NAME)))
                     .setUser(UserJdbcDAOImpl.getDao().getById(resultSet.getInt(USER_ID_COLUMN_NAME)))
                     .build());

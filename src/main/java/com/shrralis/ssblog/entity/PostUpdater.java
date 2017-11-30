@@ -29,7 +29,15 @@ public class PostUpdater {
     }
 
     public static final class Builder {
-        private PostUpdater postUpdater = new PostUpdater();
+        private PostUpdater postUpdater;
+
+        private Builder() {
+            postUpdater = new PostUpdater();
+        }
+
+        public static Builder aPostUpdater() {
+            return new Builder();
+        }
 
         public Builder setUser(User user) {
             postUpdater.setUser(user);

@@ -25,12 +25,15 @@
 </nav>
 
 <div class="container">
-    <form class="center post-form" action="/createPost" method="post">
+    <form class="center post-form" action="/createPost" method="post" enctype="multipart/form-data">
         <input type="text" name="title" placeholder="Title" value="${title}"/>
         <br/>
         <input type="text" name="description" placeholder="Description" value="${description}"/>
         <br/>
         <textarea type="text" name="text" placeholder="Text">${text}</textarea>
+        <br/>
+        <label for="image-chooser">Choose an image for the post</label>
+        <input id="image-chooser" type="file" name="image">
         <br/>
         <button type="submit" class="btn-primary">Create</button>
 

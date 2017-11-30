@@ -33,30 +33,34 @@ public class SetPostedDTO {
         post.put("posted", posted);
     }
 
-    public static class Builder {
-        private SetPostedDTO dto;
+    public static final class Builder {
+        private SetPostedDTO setPostedDTO;
 
-        public Builder() {
-            dto = new SetPostedDTO();
+        private Builder() {
+            setPostedDTO = new SetPostedDTO();
         }
 
-        public Builder setCookieUser(User user) {
-            dto.setCookieUser(user);
+        public static Builder aSetPostedDTO() {
+            return new Builder();
+        }
+
+        public Builder setCookieUser(User cookieUser) {
+            setPostedDTO.setCookieUser(cookieUser);
             return this;
         }
 
         public Builder setPostId(Integer id) {
-            dto.setPostId(id);
+            setPostedDTO.setPostId(id);
             return this;
         }
 
         public Builder setPostPosted(Boolean posted) {
-            dto.setPostPosted(posted);
+            setPostedDTO.setPostPosted(posted);
             return this;
         }
 
         public SetPostedDTO build() {
-            return dto;
+            return setPostedDTO;
         }
     }
 }

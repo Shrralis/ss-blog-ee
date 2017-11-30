@@ -82,7 +82,7 @@ public class UserJdbcDAOImpl extends JdbcBasedDAO implements IUserDAO {
         ResultSet resultSet = preparedStatement.executeQuery();
 
         while (resultSet.next()) {
-            result.add(new User.Builder()
+            result.add(User.Builder.anUser()
                     .setId(resultSet.getInt(ID_COLUMN_NAME))
                     .setLogin(resultSet.getString(LOGIN_COLUMN_NAME))
                     .setPassword(withPassword ? resultSet.getString(PASS_COLUMN_NAME) : null)
@@ -101,7 +101,7 @@ public class UserJdbcDAOImpl extends JdbcBasedDAO implements IUserDAO {
         ResultSet resultSet = preparedStatement.executeQuery();
 
         if (resultSet.next()) {
-            return new User.Builder()
+            return User.Builder.anUser()
                     .setId(resultSet.getInt(ID_COLUMN_NAME))
                     .setLogin(resultSet.getString(LOGIN_COLUMN_NAME))
                     .setPassword(withPassword ? resultSet.getString(PASS_COLUMN_NAME) : null)
@@ -125,7 +125,7 @@ public class UserJdbcDAOImpl extends JdbcBasedDAO implements IUserDAO {
         ResultSet resultSet = preparedStatement.executeQuery();
 
         if (resultSet.next()) {
-            return new User.Builder()
+            return User.Builder.anUser()
                     .setId(resultSet.getInt(ID_COLUMN_NAME))
                     .setLogin(resultSet.getString(LOGIN_COLUMN_NAME))
                     .setPassword(withPassword ? resultSet.getString(PASS_COLUMN_NAME) : null)
@@ -149,7 +149,7 @@ public class UserJdbcDAOImpl extends JdbcBasedDAO implements IUserDAO {
         ResultSet resultSet = preparedStatement.executeQuery();
 
         if (resultSet.next()) {
-            return new User.Builder()
+            return User.Builder.anUser()
                     .setId(resultSet.getInt(ID_COLUMN_NAME))
                     .setLogin(resultSet.getString(LOGIN_COLUMN_NAME))
                     .setPassword(withPassword ? resultSet.getString(PASS_COLUMN_NAME) : null)

@@ -43,7 +43,7 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", login='" + login + '\'' +
-                ", password='" + password + '\'' +
+                ", pass='" + password + '\'' +
                 ", scope=" + scope +
                 '}';
     }
@@ -67,7 +67,6 @@ public class User {
             return result;
         }
 
-
         @Override
         public String toString() {
             return super.toString();
@@ -75,7 +74,15 @@ public class User {
     }
 
     public static final class Builder {
-        private User user = new User();
+        private User user;
+
+        private Builder() {
+            user = new User();
+        }
+
+        public static Builder anUser() {
+            return new Builder();
+        }
 
         public Builder setId(Integer id) {
             user.setId(id);

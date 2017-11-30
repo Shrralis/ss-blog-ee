@@ -33,30 +33,34 @@ public class EditUpdaterDTO {
         data.put("updater_id", id);
     }
 
-    public static class Builder {
-        private EditUpdaterDTO dto;
+    public static final class Builder {
+        private EditUpdaterDTO editUpdaterDTO;
 
-        public Builder() {
-            dto = new EditUpdaterDTO();
+        private Builder() {
+            editUpdaterDTO = new EditUpdaterDTO();
         }
 
-        public Builder setCookieUser(User user) {
-            dto.setCookieUser(user);
+        public static Builder anEditUpdaterDTO() {
+            return new Builder();
+        }
+
+        public Builder setCookieUser(User cookieUser) {
+            editUpdaterDTO.setCookieUser(cookieUser);
             return this;
         }
 
-        public Builder setPostId(Integer id) {
-            dto.setPostId(id);
+        public Builder setPostId(Integer postId) {
+            editUpdaterDTO.setPostId(postId);
             return this;
         }
 
-        public Builder setUpdaterId(Integer id) {
-            dto.setUpdaterId(id);
+        public Builder setUpdaterId(Integer updaterId) {
+            editUpdaterDTO.setUpdaterId(updaterId);
             return this;
         }
 
         public EditUpdaterDTO build() {
-            return dto;
+            return editUpdaterDTO;
         }
     }
 }

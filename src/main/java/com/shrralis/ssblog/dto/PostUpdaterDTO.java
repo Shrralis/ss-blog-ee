@@ -29,30 +29,34 @@ public class PostUpdaterDTO {
         isPostUpdater = postUpdater;
     }
 
-    public static class Builder {
-        private PostUpdaterDTO dto;
+    public static final class Builder {
+        private PostUpdaterDTO postUpdaterDTO;
 
-        public Builder() {
-            dto = new PostUpdaterDTO();
+        private Builder() {
+            postUpdaterDTO = new PostUpdaterDTO();
+        }
+
+        public static Builder aPostUpdaterDTO() {
+            return new Builder();
         }
 
         public Builder setUserId(Integer userId) {
-            dto.setUserId(userId);
+            postUpdaterDTO.setUserId(userId);
             return this;
         }
 
         public Builder setUserLogin(String userLogin) {
-            dto.setUserLogin(userLogin);
+            postUpdaterDTO.setUserLogin(userLogin);
             return this;
         }
 
-        public Builder setPostUpdater(Boolean postUpdater) {
-            dto.setPostUpdater(postUpdater);
+        public Builder setPostUpdater(Boolean isPostUpdater) {
+            postUpdaterDTO.setPostUpdater(isPostUpdater);
             return this;
         }
 
         public PostUpdaterDTO build() {
-            return dto;
+            return postUpdaterDTO;
         }
     }
 }

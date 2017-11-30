@@ -1,12 +1,15 @@
 package com.shrralis.ssblog.service;
 
+import com.shrralis.ssblog.dao.ImageJdbcDAOImpl;
 import com.shrralis.ssblog.dao.PostJdbcDAOImpl;
 import com.shrralis.ssblog.dao.PostUpdaterJdbcDAOImpl;
 import com.shrralis.ssblog.dao.UserJdbcDAOImpl;
+import com.shrralis.ssblog.dao.interfaces.IImageDAO;
 import com.shrralis.ssblog.dao.interfaces.IPostDAO;
 import com.shrralis.ssblog.dao.interfaces.IPostUpdaterDAO;
 import com.shrralis.ssblog.dao.interfaces.IUserDAO;
 import com.shrralis.ssblog.dto.*;
+import com.shrralis.ssblog.entity.Image;
 import com.shrralis.ssblog.entity.Post;
 import com.shrralis.ssblog.entity.PostUpdater;
 import com.shrralis.ssblog.entity.User;
@@ -17,6 +20,7 @@ import com.shrralis.tools.model.JsonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,11 +33,13 @@ public class PostServiceImpl implements IPostService {
     private IPostDAO dao;
     private IPostUpdaterDAO postUpdaterDAO;
     private IUserDAO userDAO;
+    private IImageDAO imageDAO;
 
     public PostServiceImpl() throws ClassNotFoundException, SQLException {
         dao = PostJdbcDAOImpl.getDao();
         postUpdaterDAO = PostUpdaterJdbcDAOImpl.getDao();
         userDAO = UserJdbcDAOImpl.getDao();
+        imageDAO = ImageJdbcDAOImpl.getDao();
     }
 
     @Override
@@ -44,15 +50,15 @@ public class PostServiceImpl implements IPostService {
             }
 
             if (dto.getPostId() == null || dto.getPostId() < 1) {
-                return new JsonResponse(JsonError.Error.BAD_POST_ID);
+                return new JsonResponse(JsonError.Error.POST_ID_BAD);
             }
 
             if (dto.getUpdaterId() == null || dto.getUpdaterId() < 1) {
-                return new JsonResponse(JsonError.Error.BAD_UPDATER_ID);
+                return new JsonResponse(JsonError.Error.UPDATER_ID_BAD);
             }
 
-            User user = userDAO.getById(dto.getCookieUser().getId(), true);
-            Post post = dao.getById(dto.getPostId());
+            final User user = userDAO.getById(dto.getCookieUser().getId(), true);
+            final Post post = dao.getById(dto.getPostId());
 
             if (post == null) {
                 return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
@@ -66,7 +72,7 @@ public class PostServiceImpl implements IPostService {
                 return new JsonResponse(JsonError.Error.ALREADY_EXISTS);
             }
 
-            PostUpdater postUpdater = postUpdaterDAO.add(new PostUpdater.Builder()
+            final PostUpdater postUpdater = postUpdaterDAO.add(PostUpdater.Builder.aPostUpdater()
                     .setPost(dao.getById(dto.getPostId()))
                     .setUser(userDAO.getById(dto.getUpdaterId(), false))
                     .build());
@@ -82,33 +88,37 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse create(NewEditPostDTO postDTO) {
-        if (TextUtil.isEmpty(postDTO.getPostTitle())) {
-            return new JsonResponse(JsonError.Error.EMPTY_TITLE);
-        } else if (postDTO.getPostTitle().length() > 64) {
-            return new JsonResponse(JsonError.Error.MAX_LENGTH_TITLE);
+    public JsonResponse create(NewEditPostDTO dto) {
+        if (dto.getImagePart() != null && TextUtil.isEmpty(dto.getDirectoryPath())) {
+            return new JsonResponse(JsonError.Error.IMAGE_INTERNAL);
         }
 
-        if (TextUtil.isEmpty(postDTO.getPostDescription())) {
-            return new JsonResponse(JsonError.Error.EMPTY_DESCRIPTION);
-        } else if (postDTO.getPostDescription().length() > 128) {
-            return new JsonResponse(JsonError.Error.MAX_LENGTH_DESCRIPTION);
+        if (TextUtil.isEmpty(dto.getPostTitle())) {
+            return new JsonResponse(JsonError.Error.TITLE_EMPTY);
+        } else if (dto.getPostTitle().length() > 64) {
+            return new JsonResponse(JsonError.Error.TITLE_MAX_LENGTH);
         }
 
-        if (TextUtil.isEmpty(postDTO.getPostText())) {
-            return new JsonResponse(JsonError.Error.EMPTY_TEXT);
-        } else if (postDTO.getPostText().length() > 2048) {
-            return new JsonResponse(JsonError.Error.MAX_LENGTH_TEXT);
+        if (TextUtil.isEmpty(dto.getPostDescription())) {
+            return new JsonResponse(JsonError.Error.DESCRIPTION_EMPTY);
+        } else if (dto.getPostDescription().length() > 128) {
+            return new JsonResponse(JsonError.Error.DESCRIPTION_MAX_LENGTH);
         }
 
-        if (postDTO.getCookieUser() == null) {
+        if (TextUtil.isEmpty(dto.getPostText())) {
+            return new JsonResponse(JsonError.Error.TEXT_EMPTY);
+        } else if (dto.getPostText().length() > 2048) {
+            return new JsonResponse(JsonError.Error.TEXT_MAX_LENGTH);
+        }
+
+        if (dto.getCookieUser() == null) {
             return new JsonResponse(JsonError.Error.NO_ACCESS);
         }
 
         User user;
 
         try {
-            user = userDAO.getById(postDTO.getCookieUser().getId(), false);
+            user = userDAO.getById(dto.getCookieUser().getId(), false);
         } catch (SQLException e) {
             logger.debug("Exception!", e);
             return new JsonResponse(JsonError.Error.DATABASE);
@@ -123,40 +133,56 @@ public class PostServiceImpl implements IPostService {
         }
 
         try {
-            return new JsonResponse(dao.add(new Post.Builder()
-                    .setTitle(postDTO.getPostTitle())
-                    .setDescription(postDTO.getPostDescription())
-                    .setText(postDTO.getPostText())
+            Integer imageId = null;
+
+            if (dto.getImagePart() != null) {
+                final String imageName = ImageServiceImpl.writeFile(dto.getImagePart(), dto.getDirectoryPath());
+                imageId = imageDAO.add(Image.Builder.anImage()
+                        .setSrc(imageName)
+                        .build()).getId();
+
+                if (imageId == null) {
+                    return new JsonResponse(JsonError.Error.IMAGE_INTERNAL);
+                }
+            }
+            return new JsonResponse(dao.add(Post.Builder.aPost()
+                    .setTitle(dto.getPostTitle())
+                    .setDescription(dto.getPostDescription())
+                    .setText(dto.getPostText())
                     .setCreator(user)
                     .setCreatedAt(LocalDateTime.now())
+                    .setImage(imageDAO.get(imageId, false))
                     .build()));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with adding new post!", e);
             return new JsonResponse(JsonError.Error.DATABASE);
+        } catch (IOException e) {
+            logger.debug("Exception with writing the image!", e);
+            return new JsonResponse(JsonError.Error.IMAGE_WRITING_FAIL);
         }
     }
 
     @Override
-    public JsonResponse delete(DeletePostDTO postDTO) {
-        if (postDTO.getPostId() == null || postDTO.getPostId() < 1) {
-            return new JsonResponse(JsonError.Error.BAD_POST_ID);
+    public JsonResponse delete(DeletePostDTO dto) {
+        if (dto.getPostId() == null || dto.getPostId() < 1) {
+            return new JsonResponse(JsonError.Error.POST_ID_BAD);
         }
 
         try {
-            Post post = dao.getById(postDTO.getPostId());
+            final Post post = dao.getById(dto.getPostId());
 
             if (post == null) {
                 return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
             }
 
-            if (postDTO.getCookieUser() == null) {
+            if (dto.getCookieUser() == null) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
 
             User user;
 
             try {
-                user = userDAO.getById(postDTO.getCookieUser().getId(), false);
+                user = userDAO.getById(dto.getCookieUser().getId(), false);
             } catch (SQLException e) {
                 logger.debug("Exception!", e);
                 return new JsonResponse(JsonError.Error.DATABASE);
@@ -178,43 +204,41 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse edit(NewEditPostDTO postDTO) {
-        if (postDTO == null || (TextUtil.isEmpty(postDTO.getPostTitle()) &&
-                TextUtil.isEmpty(postDTO.getPostDescription()) &&
-                TextUtil.isEmpty(postDTO.getPostText()))) {
+    public JsonResponse edit(NewEditPostDTO dto) {
+        if (dto == null || (TextUtil.isEmpty(dto.getPostTitle()) &&
+                TextUtil.isEmpty(dto.getPostDescription()) &&
+                TextUtil.isEmpty(dto.getPostText()))) {
             logger.debug("BAD UPDATE DATA");
-            return new JsonResponse(JsonError.Error.BAD_UPDATE_DATA);
+            return new JsonResponse(JsonError.Error.UPDATE_DATA_BAD);
         }
 
         try {
-            Post dbPost = dao.getById(postDTO.getPostId());
+            final Post dbPost = dao.getById(dto.getPostId());
 
             if (dbPost == null) {
                 logger.debug("POST NOT EXISTS");
                 return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
             }
 
-            if (postDTO.getCookieUser() == null) {
-                logger.debug("NO ACCESS");
+            if (dto.getCookieUser() == null) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
 
-            if (!dbPost.getCreator().getId().equals(postDTO.getCookieUser().getId()) &&
-                    postUpdaterDAO.get(postDTO.getPostId(), postDTO.getCookieUser().getId()) == null) {
-                logger.debug("NO ACCESS 1");
+            if (!dbPost.getCreator().getId().equals(dto.getCookieUser().getId()) &&
+                    postUpdaterDAO.get(dto.getPostId(), dto.getCookieUser().getId()) == null) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
 
-            if (!TextUtil.isEmpty(postDTO.getPostTitle())) {
-                dbPost.setTitle(postDTO.getPostTitle());
+            if (!TextUtil.isEmpty(dto.getPostTitle())) {
+                dbPost.setTitle(dto.getPostTitle());
             }
 
-            if (!TextUtil.isEmpty(postDTO.getPostDescription())) {
-                dbPost.setTitle(postDTO.getPostDescription());
+            if (!TextUtil.isEmpty(dto.getPostDescription())) {
+                dbPost.setTitle(dto.getPostDescription());
             }
 
-            if (!TextUtil.isEmpty(postDTO.getPostText())) {
-                dbPost.setText(postDTO.getPostText());
+            if (!TextUtil.isEmpty(dto.getPostText())) {
+                dbPost.setText(dto.getPostText());
             }
             dbPost.setUpdatedAt(LocalDateTime.now());
             return new JsonResponse(dao.edit(dbPost));
@@ -225,29 +249,56 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse get(Integer postId) {
-        if (postId == null || postId < 1) {
-            return new JsonResponse(JsonError.Error.BAD_POST_ID);
+    public JsonResponse get(GetPostDTO dto) {
+        if (dto.getPostId() == null || dto.getPostId() < 1) {
+            return new JsonResponse(JsonError.Error.POST_ID_BAD);
         }
 
+        if (dto.getCookieUser() == null) {
+            return new JsonResponse(JsonError.Error.NO_ACCESS);
+        }
+
+        User user;
+        Post post;
+
         try {
-            return new JsonResponse(dao.getById(postId));
-        } catch (ClassNotFoundException | SQLException e) {
-            logger.debug("Exception with getting post by `id`!", e);
+            user = userDAO.getById(dto.getCookieUser().getId(), true);
+            post = dao.getById(dto.getPostId());
+        } catch (SQLException e) {
+            logger.debug("Exception with recognizing user OR getting post!", e);
+            return new JsonResponse(JsonError.Error.DATABASE);
+        } catch (ClassNotFoundException e) {
+            logger.debug("Exception with getting post!", e);
             return new JsonResponse(JsonError.Error.DATABASE);
         }
+
+        if (post == null) {
+            return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
+        }
+
+        if (user == null || User.Scope.BANNED.equals(user.getScope()) ||
+                (!post.isPosted() && !post.getCreator().getId().equals(user.getId()))) {
+            return new JsonResponse(JsonError.Error.NO_ACCESS);
+        }
+        return new JsonResponse(post);
     }
 
     @Override
-    public JsonResponse getAll(User user) {
-        try {
-            User tempUser = user == null ? null : userDAO.getById(user.getId(), true);
-            final User u1 = tempUser == null ? null :
-                    (tempUser.getPassword().equals(user.getPassword()) ? tempUser : null);
+    public JsonResponse getAll(User requester) {
+        if (requester == null) {
+            return new JsonResponse(JsonError.Error.NO_ACCESS);
+        }
 
+        try {
+            final User user = userDAO.getById(requester.getId(), true);
+
+            if (user == null || User.Scope.BANNED.equals(user.getScope()) ||
+                    !user.getPassword().equals(requester.getPassword())) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
+            }
             return new JsonResponse(dao.getAllPosts().stream()
                     .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
-                    .filter(p -> p.isPosted() || (u1 != null && p.getCreator().getId().equals(u1.getId())))
+                    .filter(p -> p.isPosted() || p.getCreator().getId().equals(user.getId()))
                     .collect(Collectors.toList()));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with getting all posts!", e);
@@ -256,23 +307,54 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse getUsersWithAccess(Integer postId, User user) {
-        if (user == null || user.getId() < 1) {
+    public JsonResponse getByUser(GetPostDTO dto) {
+        if (dto.getCookieUser() == null) {
+            logger.debug("NO ACCESS 1");
             return new JsonResponse(JsonError.Error.NO_ACCESS);
         }
 
-        if (postId == null || postId < 1) {
-            return new JsonResponse(JsonError.Error.BAD_POST_ID);
-        }
-
         try {
-            User u = userDAO.getById(user.getId(), true);
+            final User requester = userDAO.getById(dto.getCookieUser().getId(), true);
 
-            if (u == null || !u.getPassword().equals(user.getPassword())) {
+            if (requester == null || User.Scope.BANNED.equals(requester.getScope()) ||
+                    !requester.getPassword().equals(dto.getCookieUser().getPassword())) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
 
-            Post post = dao.getById(postId);
+            final User creator = userDAO.getById(dto.getUserId(), false);
+
+            if (creator == null) {
+                return new JsonResponse(JsonError.Error.USER_NOT_EXISTS);
+            }
+            return new JsonResponse(dao.getByCreator(creator).stream()
+                    .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
+                    .filter(p -> p.isPosted() || (p.getCreator().getId().equals(requester.getId())))
+                    .collect(Collectors.toList()));
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.debug("Exception with getting all posts!", e);
+            return new JsonResponse(JsonError.Error.DATABASE);
+        }
+    }
+
+    @Override
+    public JsonResponse getUsersWithAccess(GetPostDTO dto) {
+        if (dto.getCookieUser() == null || dto.getCookieUser().getId() < 1) {
+            return new JsonResponse(JsonError.Error.NO_ACCESS);
+        }
+
+        if (dto.getPostId() == null || dto.getPostId() < 1) {
+            return new JsonResponse(JsonError.Error.POST_ID_BAD);
+        }
+
+        try {
+            User user = userDAO.getById(dto.getCookieUser().getId(), true);
+
+            if (user == null || User.Scope.BANNED.equals(user.getScope()) ||
+                    !user.getPassword().equals(dto.getCookieUser().getPassword())) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
+            }
+
+            Post post = dao.getById(dto.getPostId());
 
             if (post == null) {
                 return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
@@ -282,7 +364,7 @@ public class PostServiceImpl implements IPostService {
             List<PostUpdater> postUpdaters = postUpdaterDAO.getByPost(post);
             List<PostUpdaterDTO> result = new ArrayList<>();
 
-            users.forEach(v -> result.add(new PostUpdaterDTO.Builder()
+            users.forEach(v -> result.add(PostUpdaterDTO.Builder.aPostUpdaterDTO()
                     .setUserId(v.getId())
                     .setUserLogin(v.getLogin())
                     .setPostUpdater(postUpdaters.stream().anyMatch(p -> p.getUser().getId().equals(v.getId())))
@@ -302,11 +384,11 @@ public class PostServiceImpl implements IPostService {
             }
 
             if (dto.getPostId() == null || dto.getPostId() < 1) {
-                return new JsonResponse(JsonError.Error.BAD_POST_ID);
+                return new JsonResponse(JsonError.Error.POST_ID_BAD);
             }
 
             if (dto.getUpdaterId() == null || dto.getUpdaterId() < 1) {
-                return new JsonResponse(JsonError.Error.BAD_UPDATER_ID);
+                return new JsonResponse(JsonError.Error.UPDATER_ID_BAD);
             }
 
             User user = userDAO.getById(dto.getCookieUser().getId(), true);
@@ -334,28 +416,57 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse setPosted(SetPostedDTO postedDTO) {
-        if (postedDTO == null || postedDTO.getPostId() == null || postedDTO.getPostId() < 1) {
-            return new JsonResponse(JsonError.Error.BAD_POST_ID);
+    public JsonResponse search(String word, User requester) {
+        if (requester == null) {
+            return new JsonResponse(JsonError.Error.NO_ACCESS);
         }
 
         try {
-            Post post = dao.getById(postedDTO.getPostId());
+            final User user = userDAO.getById(requester.getId(), true);
+
+            if (user == null || User.Scope.BANNED.equals(user.getScope()) ||
+                    !user.getPassword().equals(requester.getPassword())) {
+                return new JsonResponse(JsonError.Error.NO_ACCESS);
+            }
+            return new JsonResponse(dao.getBySubstring(word).stream()
+                    .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
+                    .filter(p -> p.isPosted() || p.getCreator().getId().equals(user.getId()))
+                    .collect(Collectors.toList()));
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.debug("Exception with getting all posts!", e);
+            return new JsonResponse(JsonError.Error.DATABASE);
+        }
+    }
+
+    @Override
+    public JsonResponse setPosted(SetPostedDTO dto) {
+        if (dto.getPostId() == null || dto.getPostId() < 1) {
+            return new JsonResponse(JsonError.Error.POST_ID_BAD);
+        }
+
+        if (dto.getCookieUser() == null) {
+            return new JsonResponse(JsonError.Error.NO_ACCESS);
+        }
+
+        try {
+            Post post = dao.getById(dto.getPostId());
 
             if (post == null) {
                 return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
             }
 
-            if (postedDTO.getCookieUser() == null || postedDTO.getCookieUser().getId() < 1) {
+            if (dto.getCookieUser() == null || dto.getCookieUser().getId() < 1 ||
+                    !post.getCreator().getId().equals(dto.getCookieUser().getId())) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
 
-            User user = userDAO.getById(postedDTO.getCookieUser().getId(), true);
+            User user = userDAO.getById(dto.getCookieUser().getId(), true);
 
-            if (user == null || !user.getPassword().equals(postedDTO.getCookieUser().getPassword())) {
+            if (user == null || User.Scope.BANNED.equals(user.getScope()) ||
+                    !user.getPassword().equals(dto.getCookieUser().getPassword())) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
-            post.setPosted(postedDTO.isPostPosted());
+            post.setPosted(dto.isPostPosted());
             return new JsonResponse(dao.edit(post));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with setting post's `is_posted`!", e);

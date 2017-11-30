@@ -53,7 +53,7 @@
         </c:if>
 
         <c:if test="${response.getError() != null}">
-            <span class="error center">${response.getError().getErrormsg()}</span>
+            <span class="error center">${response.getError().getErrmsg()}</span>
         </c:if>
     </div>
 </main>
