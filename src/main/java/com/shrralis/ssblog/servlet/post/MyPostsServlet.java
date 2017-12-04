@@ -1,5 +1,6 @@
 package com.shrralis.ssblog.servlet.post;
 
+import com.shrralis.ssblog.config.PostsConfig;
 import com.shrralis.ssblog.dto.GetPostDTO;
 import com.shrralis.ssblog.dto.PostUpdaterDTO;
 import com.shrralis.ssblog.entity.Post;
@@ -31,6 +32,9 @@ public class MyPostsServlet extends ServletWithGsonProcessor {
         IPostService postService;
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/posts.jsp");
 
+        req.setAttribute("page", req.getParameter("page") == null ? 1 :
+                Integer.valueOf(req.getParameter("page")));
+
         try {
             postService = new PostServiceImpl();
         } catch (ClassNotFoundException | SQLException e) {
@@ -49,6 +53,9 @@ public class MyPostsServlet extends ServletWithGsonProcessor {
         JsonResponse response = postService.getByUser(GetPostDTO.Builder.aGetPostDTO()
                 .setCookieUser(user)
                 .setUserId(user.getId())
+                .setCount(PostsConfig.POSTS_PER_PAGE)
+                .setOffset(req.getParameter("page") == null ? 0 :
+                        (Integer.valueOf(req.getParameter("page")) - 1) * PostsConfig.POSTS_PER_PAGE)
                 .build());
         Map<Integer, Boolean> access = new HashMap<>();
 

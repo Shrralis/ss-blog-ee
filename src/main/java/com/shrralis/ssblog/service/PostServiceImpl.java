@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -279,10 +278,12 @@ public class PostServiceImpl implements IPostService {
 
         User user;
         Post post;
+        List<PostUpdater> postUpdaters;
 
         try {
             user = userDAO.getById(dto.getCookieUser().getId(), true);
             post = dao.getById(dto.getPostId());
+            postUpdaters = postUpdaterDAO.getByPost(post);
         } catch (SQLException e) {
             logger.debug("Exception with recognizing user OR getting post!", e);
             return new JsonResponse(JsonError.Error.DATABASE);
@@ -291,34 +292,45 @@ public class PostServiceImpl implements IPostService {
             return new JsonResponse(JsonError.Error.DATABASE);
         }
 
-        if (post == null) {
+        if (post == null || (!post.isPosted() && !post.getCreator().getId().equals(user.getId()) &&
+                postUpdaters.stream().noneMatch(pu -> user.getId().equals(pu.getUser().getId())))) {
             return new JsonResponse(JsonError.Error.POST_NOT_EXISTS);
         }
 
-        if (user == null || User.Scope.BANNED.equals(user.getScope()) ||
-                (!post.isPosted() && !post.getCreator().getId().equals(user.getId()))) {
+        if (user == null || User.Scope.BANNED.equals(user.getScope())) {
             return new JsonResponse(JsonError.Error.NO_ACCESS);
         }
         return new JsonResponse(post);
     }
 
     @Override
-    public JsonResponse getAll(User requester) {
-        if (requester == null) {
+    public JsonResponse getAll(GetPostDTO dto) {
+        if (dto.getCookieUser() == null) {
             return new JsonResponse(JsonError.Error.NO_ACCESS);
         }
 
         try {
-            final User user = userDAO.getById(requester.getId(), true);
+            final User user = userDAO.getById(dto.getCookieUser().getId(), true);
 
             if (user == null || User.Scope.BANNED.equals(user.getScope()) ||
-                    !user.getPassword().equals(requester.getPassword())) {
+                    !user.getPassword().equals(dto.getCookieUser().getPassword())) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
-            return new JsonResponse(dao.getAllPosts().stream()
-                    .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
-                    .filter(p -> p.isPosted() || p.getCreator().getId().equals(user.getId()))
-                    .collect(Collectors.toList()));
+
+            List<Post> posts = dao.getAllPosts(null, null);
+            List<PostUpdater> postUpdaters = postUpdaterDAO.getByUser(user);
+            Long redundantCount = posts.stream()
+                    .filter(p -> !p.isPosted() && !p.getCreator().getId().equals(user.getId()) &&
+                            postUpdaters.stream().noneMatch(pu -> p.getId().equals(pu.getPost().getId())))
+                    .count();
+
+            return JsonResponse.Builder.aJsonResponse()
+                    .setData(dao.getAllPosts(dto.getCount(), dto.getOffset()).stream()
+                            .filter(p -> p.isPosted() || p.getCreator().getId().equals(user.getId()) ||
+                                    postUpdaters.stream().anyMatch(pu -> p.getId().equals(pu.getPost().getId())))
+                            .collect(Collectors.toList()))
+                    .setCount(posts.size() - redundantCount.intValue())
+                    .build();
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with getting all posts!", e);
             return new JsonResponse(JsonError.Error.DATABASE);
@@ -345,10 +357,20 @@ public class PostServiceImpl implements IPostService {
             if (creator == null) {
                 return new JsonResponse(JsonError.Error.USER_NOT_EXISTS);
             }
-            return new JsonResponse(dao.getByCreator(creator).stream()
-                    .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
-                    .filter(p -> p.isPosted() || (p.getCreator().getId().equals(requester.getId())))
-                    .collect(Collectors.toList()));
+
+            List<Post> posts = dao.getByCreator(creator, null, null);
+            List<PostUpdater> postUpdaters = postUpdaterDAO.getByUser(requester);
+            Long redundantCount = posts.stream()
+                    .filter(p -> !p.isPosted() && !p.getCreator().getId().equals(requester.getId()) &&
+                            postUpdaters.stream().noneMatch(pu -> p.getId().equals(pu.getPost().getId())))
+                    .count();
+
+            return JsonResponse.Builder.aJsonResponse()
+                    .setData(dao.getByCreator(creator, dto.getCount(), dto.getOffset()).stream()
+                            .filter(p -> p.isPosted() || (p.getCreator().getId().equals(requester.getId())))
+                            .collect(Collectors.toList()))
+                    .setCount(posts.size() - redundantCount.intValue())
+                    .build();
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with getting all posts!", e);
             return new JsonResponse(JsonError.Error.DATABASE);
@@ -435,22 +457,32 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public JsonResponse search(String word, User requester) {
-        if (requester == null) {
+    public JsonResponse search(GetPostDTO dto) {
+        if (dto.getCookieUser() == null) {
             return new JsonResponse(JsonError.Error.NO_ACCESS);
         }
 
         try {
-            final User user = userDAO.getById(requester.getId(), true);
+            final User user = userDAO.getById(dto.getCookieUser().getId(), true);
 
             if (user == null || User.Scope.BANNED.equals(user.getScope()) ||
-                    !user.getPassword().equals(requester.getPassword())) {
+                    !user.getPassword().equals(dto.getCookieUser().getPassword())) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
-            return new JsonResponse(dao.getBySubstring(word).stream()
-                    .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
-                    .filter(p -> p.isPosted() || p.getCreator().getId().equals(user.getId()))
-                    .collect(Collectors.toList()));
+
+            List<Post> posts = dao.getBySubstring(dto.getSubstring(), null, null);
+            List<PostUpdater> postUpdaters = postUpdaterDAO.getByUser(user);
+            Long redundantCount = posts.stream()
+                    .filter(p -> !p.isPosted() && !p.getCreator().getId().equals(user.getId()) &&
+                            postUpdaters.stream().noneMatch(pu -> p.getId().equals(pu.getPost().getId())))
+                    .count();
+
+            return JsonResponse.Builder.aJsonResponse()
+                    .setData(dao.getBySubstring(dto.getSubstring(), dto.getCount(), dto.getOffset()).stream()
+                            .filter(p -> p.isPosted() || p.getCreator().getId().equals(user.getId()))
+                            .collect(Collectors.toList()))
+                    .setCount(posts.size() - redundantCount.intValue())
+                    .build();
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with getting all posts!", e);
             return new JsonResponse(JsonError.Error.DATABASE);

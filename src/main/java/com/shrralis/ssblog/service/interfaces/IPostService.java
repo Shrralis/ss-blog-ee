@@ -1,7 +1,6 @@
 package com.shrralis.ssblog.service.interfaces;
 
 import com.shrralis.ssblog.dto.*;
-import com.shrralis.ssblog.entity.User;
 import com.shrralis.tools.model.JsonResponse;
 
 public interface IPostService {
@@ -15,7 +14,7 @@ public interface IPostService {
 
     JsonResponse get(GetPostDTO dto);
 
-    JsonResponse getAll(User requester);
+    JsonResponse getAll(GetPostDTO dto);
 
     JsonResponse getByUser(GetPostDTO dto);
 
@@ -23,7 +22,7 @@ public interface IPostService {
 
     JsonResponse revokeUpdater(EditUpdaterDTO dto);
 
-    JsonResponse search(String word, User requester);
+    JsonResponse search(GetPostDTO dto);
 
     JsonResponse setPosted(SetPostedDTO dto);
 }

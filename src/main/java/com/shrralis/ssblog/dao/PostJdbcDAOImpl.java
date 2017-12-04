@@ -69,6 +69,16 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
     }
 
     @Override
+    public Integer countPosts() throws SQLException {
+        ResultSet resultSet = getConnection().createStatement().executeQuery("SELECT COUNT(*) AS count FROM posts");
+
+        if (resultSet != null && resultSet.next()) {
+            return resultSet.getInt(1);
+        }
+        return null;
+    }
+
+    @Override
     public void delete(Post post) throws SQLException {
         PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("DELETE FROM posts WHERE id = ?");
@@ -106,9 +116,23 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
     }
 
     @Override
-    public List<Post> getAllPosts() throws ClassNotFoundException, SQLException {
+    public List<Post> getAllPosts(Integer count, Integer offset) throws ClassNotFoundException, SQLException {
         ArrayList<Post> result = new ArrayList<>();
-        PreparedStatement preparedStatement = getConnection().prepareStatement("SELECT * FROM posts");
+        PreparedStatement preparedStatement = getConnection()
+                .prepareStatement("SELECT * FROM posts ORDER BY created_at DESC LIMIT ? OFFSET ?");
+
+        if (count == null) {
+            preparedStatement.setNull(1, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(1, count);
+        }
+
+        if (offset == null) {
+            preparedStatement.setNull(2, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(2, offset);
+        }
+
         ResultSet resultSet = preparedStatement.executeQuery();
 
         while (resultSet.next()) {
@@ -128,7 +152,7 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
     }
 
     @Override
-    public List<Post> getByCreator(User creator) throws ClassNotFoundException, SQLException {
+    public List<Post> getByCreator(User creator, Integer count, Integer offset) throws ClassNotFoundException, SQLException {
         ArrayList<Post> result = new ArrayList<>();
 
         if (creator == null) {
@@ -136,9 +160,21 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
         }
 
         PreparedStatement preparedStatement = getConnection()
-                .prepareStatement("SELECT * FROM posts WHERE creator_id = ?");
+                .prepareStatement("SELECT * FROM posts WHERE creator_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?");
 
         preparedStatement.setInt(1, creator.getId());
+
+        if (count == null) {
+            preparedStatement.setNull(2, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(2, count);
+        }
+
+        if (offset == null) {
+            preparedStatement.setNull(3, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(3, offset);
+        }
 
         ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -239,15 +275,28 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
     }
 
     @Override
-    public List<Post> getBySubstring(String substring) throws ClassNotFoundException, SQLException {
+    public List<Post> getBySubstring(String substring, Integer count, Integer offset) throws ClassNotFoundException, SQLException {
         ArrayList<Post> result = new ArrayList<>();
         PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("SELECT * FROM posts WHERE LOWER(title) LIKE LOWER(?) OR " +
-                        "LOWER(description) LIKE LOWER(?) OR LOWER(text) LIKE LOWER(?)");
+                        "LOWER(description) LIKE LOWER(?) OR LOWER(text) LIKE LOWER(?) ORDER BY created_at DESC " +
+                        "LIMIT ? OFFSET ? ");
 
         preparedStatement.setString(1, "%" + substring + "%");
         preparedStatement.setString(2, "%" + substring + "%");
         preparedStatement.setString(3, "%" + substring + "%");
+
+        if (count == null) {
+            preparedStatement.setNull(4, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(4, count);
+        }
+
+        if (offset == null) {
+            preparedStatement.setNull(5, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(5, offset);
+        }
 
         ResultSet resultSet = preparedStatement.executeQuery();
 

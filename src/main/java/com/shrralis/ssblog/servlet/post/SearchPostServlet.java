@@ -1,5 +1,6 @@
 package com.shrralis.ssblog.servlet.post;
 
+import com.shrralis.ssblog.config.PostsConfig;
 import com.shrralis.ssblog.dto.GetPostDTO;
 import com.shrralis.ssblog.dto.PostUpdaterDTO;
 import com.shrralis.ssblog.entity.Post;
@@ -31,6 +32,10 @@ public class SearchPostServlet extends ServletWithGsonProcessor {
         IPostService postService;
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/posts.jsp");
 
+        req.setAttribute("page", req.getParameter("page") == null ? 1 :
+                Integer.valueOf(req.getParameter("page")));
+        req.setAttribute("word", req.getParameter("word"));
+
         try {
             postService = new PostServiceImpl();
         } catch (ClassNotFoundException | SQLException e) {
@@ -46,7 +51,13 @@ public class SearchPostServlet extends ServletWithGsonProcessor {
         }
 
         User user = getCookieUser(req);
-        JsonResponse response = postService.search(req.getParameter("word"), user);
+        JsonResponse response = postService.search(GetPostDTO.Builder.aGetPostDTO()
+                .setSubstring(req.getParameter("word"))
+                .setCount(PostsConfig.POSTS_PER_PAGE)
+                .setOffset(req.getParameter("page") == null ? 0 :
+                        (Integer.valueOf(req.getParameter("page")) - 1) * PostsConfig.POSTS_PER_PAGE)
+                .setCookieUser(user)
+                .build());
         Map<Integer, Boolean> access = new HashMap<>();
 
         req.setAttribute("response", response);

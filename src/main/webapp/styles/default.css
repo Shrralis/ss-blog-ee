@@ -324,3 +324,20 @@ button.green {
     border: none;
     padding: 0 !important;
 }
+
+footer {
+    width: 100%;
+}
+
+footer .center {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 70%;
+    padding: 10px 30px;
+}
+
+footer div a, footer div a:visited {
+    color: #6924ff;
+    text-decoration: none;
+}

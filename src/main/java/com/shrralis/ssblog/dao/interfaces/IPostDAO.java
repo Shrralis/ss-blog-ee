@@ -10,13 +10,15 @@ import java.util.List;
 public interface IPostDAO {
     Post add(Post post) throws ClassNotFoundException, SQLException;
 
+    Integer countPosts() throws SQLException;
+
     void delete(Post post) throws SQLException;
 
     Post edit(Post post) throws ClassNotFoundException, SQLException;
 
-    List<Post> getAllPosts() throws ClassNotFoundException, SQLException;
+    List<Post> getAllPosts(Integer count, Integer offset) throws ClassNotFoundException, SQLException;
 
-    List<Post> getByCreator(User creator) throws ClassNotFoundException, SQLException;
+    List<Post> getByCreator(User creator, Integer count, Integer offset) throws ClassNotFoundException, SQLException;
 
     Post getById(Integer id) throws ClassNotFoundException, SQLException;
 
@@ -26,5 +28,5 @@ public interface IPostDAO {
 
     List<Post> getByTitle(String title) throws ClassNotFoundException, SQLException;
 
-    List<Post> getBySubstring(String substring) throws ClassNotFoundException, SQLException;
+    List<Post> getBySubstring(String substring, Integer count, Integer offset) throws ClassNotFoundException, SQLException;
 }

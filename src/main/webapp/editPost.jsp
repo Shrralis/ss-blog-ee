@@ -26,7 +26,7 @@
 
 <div class="container">
     <c:choose>
-        <c:when test="${postResponse != null && postResponse.getResult() == 0}">
+        <c:when test="${postResponse.getResult() == 0}">
             <form class="center post-form" action="/editPost" enctype="multipart/form-data" method="post">
                 <c:if test="${postResponse.getData().get(0).getImage() != null}">
                     <div class="post-image"
@@ -55,18 +55,20 @@
                 <br/>
                 <button class="btn-primary" type="submit">Edit</button>
 
-                <button class="btn-default" type="button"
-                        onclick="window.location.href='/setPosted?id=${postResponse.getData().get(0).getId()}&posted=${!postResponse.getData().get(0).isPosted()}'">
-                    <c:choose>
-                        <c:when test="${!postResponse.getData().get(0).isPosted()}">
-                            Post
-                        </c:when>
+                <c:if test="${user != null && postResponse.getData().get(0).getCreator().getId().equals(user.getId())}">
+                    <button class="btn-default" type="button"
+                            onclick="window.location.href='/setPosted?id=${postResponse.getData().get(0).getId()}&posted=${!postResponse.getData().get(0).isPosted()}'">
+                        <c:choose>
+                            <c:when test="${!postResponse.getData().get(0).isPosted()}">
+                                Post
+                            </c:when>
 
-                        <c:otherwise>
-                            Set as draft
-                        </c:otherwise>
-                    </c:choose>
-                </button>
+                            <c:otherwise>
+                                Set as draft
+                            </c:otherwise>
+                        </c:choose>
+                    </button>
+                </c:if>
 
                 <c:if test="${error != null}">
                     <span class="center error">
@@ -78,7 +80,7 @@
 
         <c:otherwise>
             <span class="center error">
-                <c:out value="${postReponse.getError().getErrormsg()}"/>
+                <c:out value="${postResponse.getError().getErrmsg()}"/>
             </span>
         </c:otherwise>
     </c:choose>

@@ -25,7 +25,7 @@
     <button class="btn-menu" type="button" onclick="window.location.href='/myPosts'">My posts</button>
 
     <form action="search">
-        <input name="word" placeholder="Search by word">
+        <input name="word" placeholder="Search by word" value="${word}">
 
         <button class="btn-menu" type="submit">
             Search
@@ -39,12 +39,15 @@
     <c:if test="${response.getResult() == 0}">
         <c:choose>
             <c:when test="${!response.getData().isEmpty()}">
+                <c:if test="${word != null}">
+                    Found: ${response.getCount()}
+                </c:if>
+
                 <c:forEach items="${response.getData()}" var="post">
                     <div class="post center">
                         <c:if test="${post.getImage() != null}">
                             <div class="post-image"
                                  style="background-image: url('/getImage?id=${post.getImage().getId()}'); background-repeat: no-repeat; background-size: cover">
-                                    <%--<img src="">--%>
                             </div>
                         </c:if>
 
@@ -110,5 +113,20 @@
         </div>
     </c:if>
 </main>
+<footer>
+    <div class="center">
+        <div>
+            <c:if test="${page > 1}">
+                <a href="?page=${page - 1}${word == null ? '' : '&word='}${word}">< Previous page</a>
+            </c:if>
+        </div>
+
+        <div>
+            <c:if test="${response.getCount() - page * com.shrralis.ssblog.config.PostsConfig.POSTS_PER_PAGE > 0}">
+                <a href="?page=${page + 1}${word == null ? '' : '&word='}${word}">Next page ></a>
+            </c:if>
+        </div>
+    </div>
+</footer>
 </body>
 </html>

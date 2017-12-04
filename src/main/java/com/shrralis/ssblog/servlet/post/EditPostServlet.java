@@ -25,6 +25,7 @@ public class EditPostServlet extends ServletWithGsonProcessor {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("user", getCookieUser(req));
         try {
             IPostService postService = new PostServiceImpl();
 

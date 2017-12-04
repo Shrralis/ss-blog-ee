@@ -2,15 +2,18 @@ package com.shrralis.ssblog.service;
 
 import com.shrralis.ssblog.dao.ImageJdbcDAOImpl;
 import com.shrralis.ssblog.dao.PostJdbcDAOImpl;
+import com.shrralis.ssblog.dao.PostUpdaterJdbcDAOImpl;
 import com.shrralis.ssblog.dao.UserJdbcDAOImpl;
 import com.shrralis.ssblog.dao.interfaces.IImageDAO;
 import com.shrralis.ssblog.dao.interfaces.IPostDAO;
+import com.shrralis.ssblog.dao.interfaces.IPostUpdaterDAO;
 import com.shrralis.ssblog.dao.interfaces.IUserDAO;
 import com.shrralis.ssblog.dto.AddImageDTO;
 import com.shrralis.ssblog.dto.DeleteImageDTO;
 import com.shrralis.ssblog.dto.GetImageDTO;
 import com.shrralis.ssblog.entity.Image;
 import com.shrralis.ssblog.entity.Post;
+import com.shrralis.ssblog.entity.PostUpdater;
 import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.interfaces.IImageService;
 import com.shrralis.tools.TextUtil;
@@ -30,11 +33,13 @@ public class ImageServiceImpl implements IImageService {
     private IImageDAO dao;
     private IUserDAO userDAO;
     private IPostDAO postDAO;
+    private IPostUpdaterDAO postUpdaterDAO;
 
     public ImageServiceImpl() throws ClassNotFoundException, SQLException {
         dao = ImageJdbcDAOImpl.getDao();
         userDAO = UserJdbcDAOImpl.getDao();
         postDAO = PostJdbcDAOImpl.getDao();
+        postUpdaterDAO = PostUpdaterJdbcDAOImpl.getDao();
     }
 
     static String writeFile(Part filePart, String directory) throws IOException {
@@ -229,9 +234,11 @@ public class ImageServiceImpl implements IImageService {
 
         try {
             List<Post> linkedPosts = postDAO.getByImage(image);
+            List<PostUpdater> postUpdaters = postUpdaterDAO.getByUser(dto.getCookieUser());
 
             if (!linkedPosts.isEmpty() && linkedPosts.stream().noneMatch(post -> post.isPosted() ||
-                    post.getCreator().getId().equals(dto.getCookieUser().getId()))) {
+                    post.getCreator().getId().equals(dto.getCookieUser().getId()) ||
+                    postUpdaters.stream().anyMatch(pu -> post.getId().equals(pu.getPost().getId())))) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
         } catch (ClassNotFoundException | SQLException e) {
