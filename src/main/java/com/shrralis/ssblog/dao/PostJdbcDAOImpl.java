@@ -50,6 +50,8 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
 
         if (post.getImage() != null) {
             preparedStatement.setInt(7, post.getImage().getId());
+        } else {
+            preparedStatement.setNull(7, Types.INTEGER);
         }
 
         if (preparedStatement.executeUpdate() == 0) {

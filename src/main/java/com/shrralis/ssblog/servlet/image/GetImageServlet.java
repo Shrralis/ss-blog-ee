@@ -46,16 +46,42 @@ public class GetImageServlet extends ServletWithGsonProcessor {
             return;
         }
 
+        File file;
+
         if (!response.getResult().equals(JsonResponse.OK)) {
             // TODO: show error
             logger.debug("ERROR!!!!!!!!! {}", response.getError().getErrmsg());
-            return;
+
+            file = new File(getServletContext().getRealPath("/") + ".." +
+                    ImagesConfig.IMAGES_ROOT_PATH + "/image-not-found.png");
+        } else {
+            file = (File) response.getData().get(0);
         }
 
-        File file = (File) response.getData().get(0);
+        String fileExtension;
 
-        resp.setContentType("image/jpeg");
-//        resp.setHeader("Content-Type", "image/jpeg");
+        switch (file.getName().substring(file.getName().indexOf('.'))) {
+            case "png":
+            case "PNG":
+                fileExtension = "png";
+
+                break;
+            case "gif":
+            case "GIF":
+                fileExtension = "gif";
+
+                break;
+            case "jpg":
+            case "JPG":
+            case "jpeg":
+            case "JPEG":
+            default:
+                fileExtension = "jpeg";
+
+                break;
+        }
+
+        resp.setContentType("image/" + fileExtension);
         Files.copy(file.toPath(), resp.getOutputStream());
     }
 }

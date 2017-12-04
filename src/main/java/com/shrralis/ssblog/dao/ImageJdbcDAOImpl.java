@@ -59,6 +59,10 @@ public class ImageJdbcDAOImpl extends JdbcBasedDAO implements IImageDAO {
 
     @Override
     public Image get(Integer id, boolean withSrc) throws SQLException {
+        if (id == null) {
+            return null;
+        }
+
         PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("SELECT * FROM images WHERE " + ID_COLUMN_NAME + " = ?");
 

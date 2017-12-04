@@ -27,7 +27,17 @@
 <div class="container">
     <c:choose>
         <c:when test="${postResponse != null && postResponse.getResult() == 0}">
-            <form class="center post-form" action="/editPost" method="post">
+            <form class="center post-form" action="/editPost" enctype="multipart/form-data" method="post">
+                <c:if test="${postResponse.getData().get(0).getImage() != null}">
+                    <div class="post-image"
+                         style="background-image: url('/getImage?id=${postResponse.getData().get(0).getImage().getId()}'); background-repeat: no-repeat; background-size: cover">
+                        <button class="btn-default" type="button"
+                                onclick="window.location.href='/deleteImage?id=${postResponse.getData().get(0).getImage().getId()}&post_id=${postResponse.getData().get(0).getId()}'">
+                            Delete image
+                        </button>
+                    </div>
+                </c:if>
+
                 <input type="hidden" name="id" value="${postResponse.getData().get(0).getId()}"/>
 
                 <input type="text" name="title" placeholder="Title"
@@ -38,6 +48,10 @@
                 <br/>
                 <textarea type="text" name="text"
                           placeholder="Text">${postResponse.getData().get(0).getText()}</textarea>
+                <br/>
+                <label for="image-chooser">Choose new image for the post (optional)</label>
+
+                <input id="image-chooser" type="file" name="image">
                 <br/>
                 <button class="btn-primary" type="submit">Edit</button>
 

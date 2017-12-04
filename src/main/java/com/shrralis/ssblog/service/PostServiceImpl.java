@@ -135,7 +135,7 @@ public class PostServiceImpl implements IPostService {
         try {
             Integer imageId = null;
 
-            if (dto.getImagePart() != null) {
+            if (dto.getImagePart() != null && !TextUtil.isEmpty(dto.getImagePart().getSubmittedFileName())) {
                 final String imageName = ImageServiceImpl.writeFile(dto.getImagePart(), dto.getDirectoryPath());
                 imageId = imageDAO.add(Image.Builder.anImage()
                         .setSrc(imageName)
@@ -212,6 +212,10 @@ public class PostServiceImpl implements IPostService {
             return new JsonResponse(JsonError.Error.UPDATE_DATA_BAD);
         }
 
+        if (dto.getImagePart() != null && TextUtil.isEmpty(dto.getDirectoryPath())) {
+            return new JsonResponse(JsonError.Error.IMAGE_INTERNAL);
+        }
+
         try {
             final Post dbPost = dao.getById(dto.getPostId());
 
@@ -234,17 +238,32 @@ public class PostServiceImpl implements IPostService {
             }
 
             if (!TextUtil.isEmpty(dto.getPostDescription())) {
-                dbPost.setTitle(dto.getPostDescription());
+                dbPost.setDescription(dto.getPostDescription());
             }
 
             if (!TextUtil.isEmpty(dto.getPostText())) {
                 dbPost.setText(dto.getPostText());
+            }
+
+            if (dto.getImagePart() != null && !TextUtil.isEmpty(dto.getImagePart().getSubmittedFileName())) {
+                final String imageName = ImageServiceImpl.writeFile(dto.getImagePart(), dto.getDirectoryPath());
+                Integer imageId = imageDAO.add(Image.Builder.anImage()
+                        .setSrc(imageName)
+                        .build()).getId();
+
+                if (imageId == null) {
+                    return new JsonResponse(JsonError.Error.IMAGE_INTERNAL);
+                }
+                dbPost.setImage(imageDAO.get(imageId, false));
             }
             dbPost.setUpdatedAt(LocalDateTime.now());
             return new JsonResponse(dao.edit(dbPost));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with updating post!", e);
             return new JsonResponse(JsonError.Error.DATABASE);
+        } catch (IOException e) {
+            logger.debug("Exception with writing the image!", e);
+            return new JsonResponse(JsonError.Error.IMAGE_WRITING_FAIL);
         }
     }
 

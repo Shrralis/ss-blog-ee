@@ -1,5 +1,6 @@
 package com.shrralis.ssblog.servlet.post;
 
+import com.shrralis.ssblog.config.ImagesConfig;
 import com.shrralis.ssblog.dto.GetPostDTO;
 import com.shrralis.ssblog.dto.NewEditPostDTO;
 import com.shrralis.ssblog.service.PostServiceImpl;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 @WebServlet("/editPost")
+@MultipartConfig(maxFileSize = ImagesConfig.IMAGES_MAX_SIZE)
 public class EditPostServlet extends ServletWithGsonProcessor {
     private static final Logger logger = LoggerFactory.getLogger(EditPostServlet.class);
 
@@ -48,6 +51,8 @@ public class EditPostServlet extends ServletWithGsonProcessor {
                     .setPostDescription(req.getParameter("description"))
                     .setPostText(req.getParameter("text"))
                     .setPosted(Boolean.valueOf(req.getParameter("posted")))
+                    .setDirectoryPath(req.getServletContext().getRealPath("/") + "/.." + ImagesConfig.IMAGES_ROOT_PATH)
+                    .setImagePart(req.getPart("image"))
                     .build());
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception!", e);

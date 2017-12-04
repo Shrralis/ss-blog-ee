@@ -58,7 +58,8 @@ public class AuthenticationFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         String uri = req.getRequestURI();
 
-        if (uri.endsWith(".css") || uri.endsWith(".js")) {
+        if (uri.endsWith(".css") || uri.endsWith(".js") ||
+                uri.endsWith("signIn") || uri.endsWith("signUp")) {
             chain.doFilter(request, response);
             return;
         }
@@ -76,31 +77,33 @@ public class AuthenticationFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
         Cookie cookie = getCookie("user", req);
-        User user = null;
+        User user;
         User userFromDao = null;
 
-        if (session != null || cookie != null) {
-            try {
-                user = gson.fromJson(
-                        URLDecoder.decode((session != null ? session.getAttribute("user") : cookie.getValue())
-                                + "", "UTF-8"), User.class);
-
-                if (user != null) {
-                    userFromDao = dao.getById(user.getId(), true);
-                }
-            } catch (SQLException e) {
-                logger.debug("Exception with recognizing the user!", e);
-                return;
-            }
+        if (session == null && cookie == null) {
+            res.sendRedirect("/signIn");
+            return;
         }
 
-        if ((userFromDao == null || User.Scope.BANNED.equals(user.getScope()) ||
-                !userFromDao.getPassword().equals(user.getPassword()))
-                && !(uri.endsWith("signIn") || uri.endsWith("signUp"))) {
+        try {
+            user = gson.fromJson(
+                    URLDecoder.decode((session != null ? session.getAttribute("user") : cookie.getValue())
+                            + "", "UTF-8"), User.class);
+
+            if (user != null) {
+                userFromDao = dao.getById(user.getId(), true);
+            }
+        } catch (SQLException e) {
+            logger.debug("Exception with recognizing the user!", e);
+            return;
+        }
+
+        if (userFromDao == null || User.Scope.BANNED.equals(userFromDao.getScope()) ||
+                !userFromDao.getPassword().equals(user.getPassword())) {
             res.sendRedirect("/signIn");
         } else {
-            if (user != null && ((uri.endsWith("setUserScope") && !User.Scope.ADMIN.equals(user.getScope())) ||
-                    (uri.endsWith("createPost") && User.Scope.WRITER.ordinal() > user.getScope().ordinal()))) {
+            if ((uri.endsWith("setUserScope") && !User.Scope.ADMIN.equals(userFromDao.getScope())) ||
+                    (uri.endsWith("createPost") && User.Scope.WRITER.ordinal() > userFromDao.getScope().ordinal())) {
                 res.sendRedirect("/");
                 return;
             }

@@ -32,7 +32,8 @@
         <br/>
         <textarea type="text" name="text" placeholder="Text">${text}</textarea>
         <br/>
-        <label for="image-chooser">Choose an image for the post</label>
+        <label for="image-chooser">Choose an image for the post (optional)</label>
+
         <input id="image-chooser" type="file" name="image">
         <br/>
         <button type="submit" class="btn-primary">Create</button>
