@@ -13,26 +13,26 @@
 
     <title>Shrralis SS Blog | Edit post</title>
 
-    <link rel="stylesheet" type="text/css" href="styles/default.css">
+    <link rel="stylesheet" type="text/css" href="${ctx}/styles/default.css">
 </head>
 <body>
 <nav>
-    <button class="btn-menu" type="button" onclick="window.location.href='/'">Main</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/'">Main</button>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/myPosts'">My posts</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/myPosts'">My posts</button>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/signIn'">Logout</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/signIn'">Logout</button>
 </nav>
 
 <div class="container">
     <c:choose>
         <c:when test="${postResponse.getResult() == 0}">
-            <form class="center post-form" action="/editPost" enctype="multipart/form-data" method="post">
+            <form class="center post-form" action="${ctx}/editPost" enctype="multipart/form-data" method="post">
                 <c:if test="${postResponse.getData().get(0).getImage() != null}">
                     <div class="post-image"
-                         style="background-image: url('/getImage?id=${postResponse.getData().get(0).getImage().getId()}'); background-repeat: no-repeat; background-size: cover">
+                         style="background-image: url('${ctx}/getImage?id=${postResponse.getData().get(0).getImage().getId()}'); background-repeat: no-repeat; background-size: cover">
                         <button class="btn-default" type="button"
-                                onclick="window.location.href='/deleteImage?id=${postResponse.getData().get(0).getImage().getId()}&post_id=${postResponse.getData().get(0).getId()}'">
+                                onclick="window.location.href='${ctx}/deleteImage?id=${postResponse.getData().get(0).getImage().getId()}&post_id=${postResponse.getData().get(0).getId()}'">
                             Delete image
                         </button>
                     </div>
@@ -57,7 +57,7 @@
 
                 <c:if test="${user != null && postResponse.getData().get(0).getCreator().getId().equals(user.getId())}">
                     <button class="btn-default" type="button"
-                            onclick="window.location.href='/setPosted?id=${postResponse.getData().get(0).getId()}&posted=${!postResponse.getData().get(0).isPosted()}'">
+                            onclick="window.location.href='${ctx}/setPosted?id=${postResponse.getData().get(0).getId()}&posted=${!postResponse.getData().get(0).isPosted()}'">
                         <c:choose>
                             <c:when test="${!postResponse.getData().get(0).isPosted()}">
                                 Post
@@ -71,17 +71,17 @@
                 </c:if>
 
                 <c:if test="${error != null}">
-                    <span class="center error">
-                        <c:out value="${error}"/>
-                    </span>
+                            <span class="center error">
+                                <c:out value="${error}"/>
+                            </span>
                 </c:if>
             </form>
         </c:when>
 
         <c:otherwise>
-            <span class="center error">
-                <c:out value="${postResponse.getError().getErrmsg()}"/>
-            </span>
+                    <span class="center error">
+                        <c:out value="${postResponse.getError().getErrmsg()}"/>
+                    </span>
         </c:otherwise>
     </c:choose>
 </div>

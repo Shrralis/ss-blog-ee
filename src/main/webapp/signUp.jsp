@@ -12,11 +12,11 @@
 
     <title>Shrralis SS Blog | Sign up</title>
 
-    <link rel="stylesheet" type="text/css" href="styles/default.css">
+    <link rel="stylesheet" type="text/css" href="${ctx}/styles/default.css">
 </head>
 <body>
 <div class="container">
-    <form class="center sign-form" action="/signUp" method="post">
+    <form class="center sign-form" action="${ctx}/signUp" method="post">
         <h2 class="header">
             Registration
         </h2>
@@ -27,7 +27,7 @@
         <br/>
         <button class="btn-primary" type="submit">Sign up</button>
 
-        <button class="btn-default" type="button" onclick="window.location.href='/signIn'">Sign in</button>
+        <button class="btn-default" type="button" onclick="window.location.href='${ctx}/signIn'">Sign in</button>
 
         <span class="error">${error}</span>
     </form>

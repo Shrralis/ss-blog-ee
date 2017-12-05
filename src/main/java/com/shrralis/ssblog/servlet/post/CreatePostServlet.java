@@ -52,13 +52,13 @@ public class CreatePostServlet extends ServletWithGsonProcessor {
                 .setPostTitle(req.getParameter("title"))
                 .setPostDescription(req.getParameter("description"))
                 .setPostText(req.getParameter("text"))
-                .setDirectoryPath(req.getServletContext().getRealPath("/") + "/.." + ImagesConfig.IMAGES_ROOT_PATH)
+                .setDirectoryPath(req.getServletContext().getRealPath("/") + ".." + ImagesConfig.IMAGES_ROOT_PATH)
                 .setImagePart(req.getPart("image"))
                 .build();
         JsonResponse response = service.create(dto);
 
         if (response.getResult().equals(JsonResponse.OK)) {
-            resp.sendRedirect("/");
+            resp.sendRedirect(req.getServletContext().getContextPath() + "/");
         } else {
             req.setAttribute("title", req.getParameter("title"));
             req.setAttribute("description", req.getParameter("description"));

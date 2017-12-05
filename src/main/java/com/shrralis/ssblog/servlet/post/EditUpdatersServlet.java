@@ -53,7 +53,7 @@ public class EditUpdatersServlet extends ServletWithGsonProcessor {
             } catch (ClassNotFoundException | SQLException e) {
                 logger.debug("Exception!", e);
             }
-            resp.sendRedirect("/editUpdaters?id=" + req.getParameter("id"));
+            resp.sendRedirect(req.getServletContext().getContextPath() + "/editUpdaters?id=" + req.getParameter("id"));
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception!", e);
         }

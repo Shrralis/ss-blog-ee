@@ -18,15 +18,15 @@
         </c:if>
     </title>
 
-    <link rel="stylesheet" type="text/css" href="styles/default.css">
+    <link rel="stylesheet" type="text/css" href="${ctx}/styles/default.css">
 </head>
 <body>
 <nav>
-    <button class="btn-menu" type="button" onclick="window.location.href='/'">Main</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/'">Main</button>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/createPost'">New post</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/createPost'">New post</button>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/myPosts'">My posts</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/myPosts'">My posts</button>
 
     <form action="search">
         <input name="word" placeholder="Search by word">
@@ -36,7 +36,7 @@
         </button>
     </form>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/signIn'">Logout</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/signIn'">Logout</button>
 </nav>
 
 <main class="container">
@@ -44,8 +44,7 @@
         <div class="post center">
             <c:if test="${response.getData().get(0).getImage() != null}">
                 <div class="post-image"
-                     style="background-image: url('/getImage?id=${response.getData().get(0).getImage().getId()}'); background-repeat: no-repeat; background-size: cover">
-                        <%--<img src="">--%>
+                     style="background-image: url('${ctx}/getImage?id=${response.getData().get(0).getImage().getId()}'); background-repeat: no-repeat; background-size: cover">
                 </div>
             </c:if>
 
@@ -66,16 +65,16 @@
                     </c:choose>
 
                     <c:if test="${access || response.getData().get(0).getCreator().getId().equals(user_id)}">
-                        <a href="/editPost?id=${response.getData().get(0).getId()}">Edit</a>
+                        <a href="${ctx}/editPost?id=${response.getData().get(0).getId()}">Edit</a>
                     </c:if>
 
                     <c:if test="${response.getData().get(0).getCreator().getId().equals(user_id)}">
-                        <a href="/editUpdaters?id=${response.getData().get(0).getId()}">Edit updaters</a>
+                        <a href="${ctx}/editUpdaters?id=${response.getData().get(0).getId()}">Edit updaters</a>
                     </c:if>
 
 
                     <c:if test="${response.getData().get(0).getCreator().getId().equals(user_id) || \"ADMIN\".equals(scope)}">
-                        <a href="/deletePost?id=${response.getData().get(0).getId()}">Delete</a>
+                        <a href="${ctx}/deletePost?id=${response.getData().get(0).getId()}">Delete</a>
                     </c:if>
                 </div>
 
@@ -91,7 +90,7 @@
                     <javatime:format value="${response.getData().get(0).getCreatedAt()}" pattern="yyyy-MM-dd HH:mm:ss"
                                      var="parsedDate"/>
 
-                    <a href="/user?id=${response.getData().get(0).getCreator().getId()}">
+                    <a href="${ctx}/user?id=${response.getData().get(0).getCreator().getId()}">
                             ${response.getData().get(0).getCreator().getLogin()}</a>, ${parsedDate}
                 </h5>
             </div>
@@ -99,7 +98,7 @@
     </c:if>
 
     <c:if test="${response.getError() != null}">
-        <span style="color: #f00">${response.getError().getErrormsg()}</span>
+        <span>${response.getError().getErrormsg()}</span>
     </c:if>
 </main>
 </body>

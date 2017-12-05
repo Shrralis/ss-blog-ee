@@ -61,7 +61,7 @@ public class SignUpServlet extends ServletWithGsonProcessor {
 
             userCookie.setMaxAge(MAX_COOKIE_SESSION_AGE);
             resp.addCookie(userCookie);
-            resp.sendRedirect("/");
+            resp.sendRedirect(req.getServletContext().getContextPath() + "/");
         } else {
             req.setAttribute("login", login);
             req.setAttribute("error", response.getError().getErrmsg());

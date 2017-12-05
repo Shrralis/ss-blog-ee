@@ -13,15 +13,15 @@
 
     <title>Shrralis SS Blog | Edit updaters</title>
 
-    <link rel="stylesheet" type="text/css" href="styles/default.css">
+    <link rel="stylesheet" type="text/css" href="${ctx}/styles/default.css">
 </head>
 <body>
 <nav>
-    <button class="btn-menu" type="button" onclick="window.location.href='/'">Main</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/'">Main</button>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/myPosts'">My posts</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/myPosts'">My posts</button>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/signIn'">Logout</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/signIn'">Logout</button>
 </nav>
 
 <main class="container">
@@ -36,14 +36,14 @@
                     <c:choose>
                         <c:when test="${user.isPostUpdater()}">
                             <button class="btn-primary red" type="button"
-                                    onclick="window.location.href='/editUpdaters?action=revoke&user_id=${user.getUserId()}&id=${id}'">
+                                    onclick="window.location.href='${ctx}/editUpdaters?action=revoke&user_id=${user.getUserId()}&id=${id}'">
                                 Revoke
                             </button>
                         </c:when>
 
                         <c:otherwise>
                             <button class="btn-primary green" type="button"
-                                    onclick="window.location.href='/editUpdaters?action=add&user_id=${user.getUserId()}&id=${id}'">
+                                    onclick="window.location.href='${ctx}/editUpdaters?action=add&user_id=${user.getUserId()}&id=${id}'">
                                 Grant
                             </button>
                         </c:otherwise>

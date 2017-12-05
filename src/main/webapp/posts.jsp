@@ -14,15 +14,15 @@
 
     <title>Shrralis SS Blog</title>
 
-    <link rel="stylesheet" type="text/css" href="styles/default.css">
+    <link rel="stylesheet" type="text/css" href="${ctx}/styles/default.css">
 </head>
 <body>
 <nav>
-    <button class="btn-menu" type="button" onclick="window.location.href='/'">Main</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/'">Main</button>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/createPost'">New post</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/createPost'">New post</button>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/myPosts'">My posts</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/myPosts'">My posts</button>
 
     <form action="search">
         <input name="word" placeholder="Search by word" value="${word}">
@@ -32,7 +32,7 @@
         </button>
     </form>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/signIn'">Logout</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/signIn'">Logout</button>
 </nav>
 
 <main class="container">
@@ -47,13 +47,13 @@
                     <div class="post center">
                         <c:if test="${post.getImage() != null}">
                             <div class="post-image"
-                                 style="background-image: url('/getImage?id=${post.getImage().getId()}'); background-repeat: no-repeat; background-size: cover">
+                                 style="background-image: url('${ctx}/getImage?id=${post.getImage().getId()}'); background-repeat: no-repeat; background-size: cover">
                             </div>
                         </c:if>
 
                         <div class="post-body">
                             <h1 class="post-header">
-                                <a href="/post?id=${post.getId()}">
+                                <a href="${ctx}/post?id=${post.getId()}">
                                     <c:out value="${post.getTitle()}"/>
                                 </a>
                             </h1>
@@ -70,11 +70,11 @@
                                 </c:choose>
 
                                 <c:if test="${access.get(post.getId()) || post.getCreator().getId().equals(user_id)}">
-                                    <a href="/editPost?id=${post.getId()}">Edit</a>
+                                    <a href="${ctx}/editPost?id=${post.getId()}">Edit</a>
                                 </c:if>
 
                                 <c:if test="${post.getCreator().getId().equals(user_id) || \"ADMIN\".equals(scope)}">
-                                    <a href="/deletePost?id=${post.getId()}">Delete</a>
+                                    <a href="${ctx}/deletePost?id=${post.getId()}">Delete</a>
                                 </c:if>
                             </div>
 
@@ -86,13 +86,13 @@
                                 <c:out value="${post.getText()}"/>
                             </div>
 
-                            <a href="/post?id=${post.getId()}">Read full</a>
+                            <a href="${ctx}/post?id=${post.getId()}">Read full</a>
 
                             <h5 class="post-details">
                                 <javatime:format value="${post.getCreatedAt()}" pattern="yyyy-MM-dd HH:mm:ss"
                                                  var="parsedDate"/>
 
-                                <a href="/user?id=${post.getCreator().getId()}">${post.getCreator().getLogin()}</a>, ${parsedDate}
+                                <a href="${ctx}/user?id=${post.getCreator().getId()}">${post.getCreator().getLogin()}</a>, ${parsedDate}
                             </h5>
                         </div>
                     </div>

@@ -12,7 +12,7 @@
 
     <title>Shrralis SS Blog | Deleting post</title>
 
-    <link rel="stylesheet" type="text/css" href="styles/default.css">
+    <link rel="stylesheet" type="text/css" href="${ctx}/styles/default.css">
 </head>
 <body>
 <main class="container">
@@ -20,11 +20,11 @@
         <h1>Are you sure you wanna completely delete the post?</h1>
 
         <button type="button" class="btn-primary red"
-                onclick="window.location.href='/deletePost?id=${id}&confirm=true'">
+                onclick="window.location.href='${ctx}/deletePost?id=${id}&confirm=true'">
             Delete
         </button>
 
-        <button type="button" class="btn-default" onclick="window.location.href='/'">Cancel</button>
+        <button type="button" class="btn-default" onclick="window.location.href='${ctx}/'">Cancel</button>
     </form>
 </main>
 </body>

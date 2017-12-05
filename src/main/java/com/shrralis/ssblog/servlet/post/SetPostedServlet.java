@@ -31,6 +31,6 @@ public class SetPostedServlet extends ServletWithGsonProcessor {
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception!", e);
         }
-        resp.sendRedirect("/post?id=" + req.getParameter("id"));
+        resp.sendRedirect(req.getServletContext().getContextPath() + "/post?id=" + req.getParameter("id"));
     }
 }

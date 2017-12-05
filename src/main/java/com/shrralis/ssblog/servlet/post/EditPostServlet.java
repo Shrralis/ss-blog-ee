@@ -60,9 +60,9 @@ public class EditPostServlet extends ServletWithGsonProcessor {
         }
 
         if (response != null && response.getResult().equals(JsonResponse.OK)) {
-            resp.sendRedirect("/post?id=" + req.getParameter("id"));
+            resp.sendRedirect(req.getServletContext().getContextPath() + "/post?id=" + req.getParameter("id"));
         } else {
-            resp.sendRedirect("/editPost?id=" + req.getParameter("id") +
+            resp.sendRedirect(req.getServletContext().getContextPath() + "/editPost?id=" + req.getParameter("id") +
                     "&error=" + response.getError().getErrmsg());
         }
     }

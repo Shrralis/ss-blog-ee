@@ -27,12 +27,12 @@ public class SignInServlet extends ServletWithGsonProcessor {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        req.getSession().invalidate();
+        req.getSession().invalidate();
 
-//        Cookie userCookie = new Cookie("user", null);
+        Cookie userCookie = new Cookie("user", null);
 
-//        userCookie.setMaxAge(0);
-//        resp.addCookie(userCookie);
+        userCookie.setMaxAge(0);
+        resp.addCookie(userCookie);
         getServletContext().getRequestDispatcher("/signIn.jsp").forward(req, resp);
     }
 
@@ -66,7 +66,7 @@ public class SignInServlet extends ServletWithGsonProcessor {
 
             userCookie.setMaxAge(MAX_COOKIE_SESSION_AGE);
             resp.addCookie(userCookie);
-            resp.sendRedirect("/");
+            resp.sendRedirect(req.getServletContext().getContextPath() + "/");
         } else {
             req.setAttribute("login", login);
             req.setAttribute("error", response.getError().getErrmsg());

@@ -38,7 +38,7 @@ public class DeletePostServlet extends ServletWithGsonProcessor {
             } catch (ClassNotFoundException | SQLException e) {
                 logger.debug("Exception!", e);
                 req.setAttribute("error", JsonError.Error.UNEXPECTED.getMessage());
-                resp.sendRedirect("/");
+                resp.sendRedirect(req.getServletContext().getContextPath() + "/");
                 return;
             }
 
@@ -49,6 +49,6 @@ public class DeletePostServlet extends ServletWithGsonProcessor {
                 return;
             }
         }
-        resp.sendRedirect("/");
+        resp.sendRedirect(req.getServletContext().getContextPath() + "/");
     }
 }

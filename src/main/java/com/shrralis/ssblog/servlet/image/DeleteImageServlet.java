@@ -41,7 +41,7 @@ public class DeleteImageServlet extends ServletWithGsonProcessor {
             } catch (ClassNotFoundException | SQLException e) {
                 logger.debug("Exception!", e);
                 req.setAttribute("error", JsonError.Error.UNEXPECTED.getMessage());
-                resp.sendRedirect("/post?id=" + req.getParameter("post_id"));
+                resp.sendRedirect(req.getServletContext().getContextPath() + "/post?id=" + req.getParameter("post_id"));
                 return;
             }
 
@@ -52,6 +52,6 @@ public class DeleteImageServlet extends ServletWithGsonProcessor {
                 return;
             }
         }
-        resp.sendRedirect("/post?id=" + req.getParameter("post_id"));
+        resp.sendRedirect(req.getServletContext().getContextPath() + "/post?id=" + req.getParameter("post_id"));
     }
 }

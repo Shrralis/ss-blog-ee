@@ -12,7 +12,7 @@
 
     <title>Shrralis SS Blog | Deleting post image</title>
 
-    <link rel="stylesheet" type="text/css" href="styles/default.css">
+    <link rel="stylesheet" type="text/css" href="${ctx}/styles/default.css">
 </head>
 <body>
 <main class="container">
@@ -20,11 +20,13 @@
         <h1>Are you sure you wanna completely delete the image of the post?</h1>
 
         <button type="button" class="btn-primary red"
-                onclick="window.location.href='/deleteImage?id=${id}&post_id=${post_id}&confirm=true'">
+                onclick="window.location.href='${ctx}/deleteImage?id=${id}&post_id=${post_id}&confirm=true'">
             Delete
         </button>
 
-        <button type="button" class="btn-default" onclick="window.location.href='/post?id=${post_id}'">Cancel</button>
+        <button type="button" class="btn-default" onclick="window.location.href='${ctx}/post?id=${post_id}'">
+            Cancel
+        </button>
     </form>
 </main>
 </body>

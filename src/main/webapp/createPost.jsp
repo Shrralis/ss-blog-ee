@@ -13,19 +13,19 @@
 
     <title>Shrralis SS Blog | Create post</title>
 
-    <link rel="stylesheet" type="text/css" href="styles/default.css">
+    <link rel="stylesheet" type="text/css" href="${ctx}/styles/default.css">
 </head>
 <body>
 <nav>
-    <button class="btn-menu" type="button" onclick="window.location.href='/'">Main</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/'">Main</button>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/myPosts'">My posts</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/myPosts'">My posts</button>
 
-    <button class="btn-menu" type="button" onclick="window.location.href='/signIn'">Logout</button>
+    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/signIn'">Logout</button>
 </nav>
 
 <div class="container">
-    <form class="center post-form" action="/createPost" method="post" enctype="multipart/form-data">
+    <form class="center post-form" action="${ctx}/createPost" method="post" enctype="multipart/form-data">
         <input type="text" name="title" placeholder="Title" value="${title}"/>
         <br/>
         <input type="text" name="description" placeholder="Description" value="${description}"/>
@@ -41,8 +41,8 @@
         <c:if test="${response.getResult() != 0}">
             <br/>
             <span class="center error">
-                <c:out value="${response.getError().getErrmsg()}"/>
-            </span>
+                        <c:out value="${response.getError().getErrmsg()}"/>
+                    </span>
         </c:if>
     </form>
 </div>

@@ -81,7 +81,7 @@ public class AuthenticationFilter implements Filter {
         User userFromDao = null;
 
         if (session == null && cookie == null) {
-            res.sendRedirect("/signIn");
+            res.sendRedirect(req.getServletContext().getContextPath() + "/signIn");
             return;
         }
 
@@ -100,11 +100,11 @@ public class AuthenticationFilter implements Filter {
 
         if (userFromDao == null || User.Scope.BANNED.equals(userFromDao.getScope()) ||
                 !userFromDao.getPassword().equals(user.getPassword())) {
-            res.sendRedirect("/signIn");
+            res.sendRedirect(req.getServletContext().getContextPath() + "/signIn");
         } else {
             if ((uri.endsWith("setUserScope") && !User.Scope.ADMIN.equals(userFromDao.getScope())) ||
                     (uri.endsWith("createPost") && User.Scope.WRITER.ordinal() > userFromDao.getScope().ordinal())) {
-                res.sendRedirect("/");
+                res.sendRedirect(req.getServletContext().getContextPath() + "/");
                 return;
             }
             chain.doFilter(request, response);

@@ -48,6 +48,14 @@ public class ImageServiceImpl implements IImageService {
         InputStream fileContent = null;
 
         try {
+            File dir = new File(directory);
+
+            if (!dir.exists()) {
+                if (!dir.mkdir()) {
+                    logger.error("Error with creating image directory!");
+                }
+            }
+
             out = new FileOutputStream(new File(directory + File.separator + fileName));
             fileContent = filePart.getInputStream();
 
