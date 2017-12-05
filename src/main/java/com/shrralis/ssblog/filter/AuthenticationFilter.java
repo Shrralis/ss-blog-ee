@@ -93,6 +93,7 @@ public class AuthenticationFilter implements Filter {
             if (user != null) {
                 userFromDao = dao.getById(user.getId(), true);
             }
+            req.setAttribute("user", user);
         } catch (SQLException e) {
             logger.debug("Exception with recognizing the user!", e);
             return;

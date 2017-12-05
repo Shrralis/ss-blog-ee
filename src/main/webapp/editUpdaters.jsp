@@ -16,13 +16,7 @@
     <link rel="stylesheet" type="text/css" href="${ctx}/styles/default.css">
 </head>
 <body>
-<nav>
-    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/'">Main</button>
-
-    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/myPosts'">My posts</button>
-
-    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/signIn'">Logout</button>
-</nav>
+<jsp:include page="parts/main-header.jsp"/>
 
 <main class="container">
     <div class="center">

@@ -16,17 +16,17 @@ public interface IPostDAO {
 
     Post edit(Post post) throws ClassNotFoundException, SQLException;
 
-    List<Post> getAllPosts(Integer count, Integer offset) throws ClassNotFoundException, SQLException;
+    List<Post> getAllPosts(Integer count, Integer offset, User requester) throws ClassNotFoundException, SQLException;
 
-    List<Post> getByCreator(User creator, Integer count, Integer offset) throws ClassNotFoundException, SQLException;
+    List<Post> getByCreator(User creator, Integer count, Integer offset, User requester) throws ClassNotFoundException, SQLException;
 
-    Post getById(Integer id) throws ClassNotFoundException, SQLException;
+    Post getById(Integer id, User requester) throws ClassNotFoundException, SQLException;
 
-    List<Post> getByImage(Image image) throws ClassNotFoundException, SQLException;
+    List<Post> getByImage(Image image, User requester) throws ClassNotFoundException, SQLException;
 
-    List<Post> getByIsPosted(boolean isPosted) throws ClassNotFoundException, SQLException;
+    List<Post> getByIsPosted(boolean isPosted, User requester) throws ClassNotFoundException, SQLException;
 
-    List<Post> getByTitle(String title) throws ClassNotFoundException, SQLException;
+    List<Post> getByTitle(String title, User requester) throws ClassNotFoundException, SQLException;
 
-    List<Post> getBySubstring(String substring, Integer count, Integer offset) throws ClassNotFoundException, SQLException;
+    List<Post> getBySubstring(String substring, Integer count, Integer offset, User requester) throws ClassNotFoundException, SQLException;
 }

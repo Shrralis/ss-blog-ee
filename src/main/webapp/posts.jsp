@@ -17,23 +17,7 @@
     <link rel="stylesheet" type="text/css" href="${ctx}/styles/default.css">
 </head>
 <body>
-<nav>
-    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/'">Main</button>
-
-    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/createPost'">New post</button>
-
-    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/myPosts'">My posts</button>
-
-    <form action="search">
-        <input name="word" placeholder="Search by word" value="${word}">
-
-        <button class="btn-menu" type="submit">
-            Search
-        </button>
-    </form>
-
-    <button class="btn-menu" type="button" onclick="window.location.href='${ctx}/signIn'">Logout</button>
-</nav>
+<jsp:include page="parts/main-header.jsp"/>
 
 <main class="container">
     <c:if test="${response.getResult() == 0}">
@@ -122,7 +106,7 @@
         </div>
 
         <div>
-            <c:if test="${response.getCount() - page * com.shrralis.ssblog.config.PostsConfig.POSTS_PER_PAGE > 0}">
+            <c:if test="${response.getCount() - page * max_post_count > 0}">
                 <a href="?page=${page + 1}${word == null ? '' : '&word='}${word}">Next page ></a>
             </c:if>
         </div>

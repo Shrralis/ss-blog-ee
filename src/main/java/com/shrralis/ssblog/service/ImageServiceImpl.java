@@ -214,8 +214,10 @@ public class ImageServiceImpl implements IImageService {
             return new JsonResponse(JsonError.Error.NO_ACCESS);
         }
 
+        User user;
+
         try {
-            User user = userDAO.getById(dto.getCookieUser().getId(), true);
+            user = userDAO.getById(dto.getCookieUser().getId(), true);
 
             if (user == null ||
                     User.Scope.BANNED.equals(user.getScope().ordinal()) ||
@@ -241,7 +243,7 @@ public class ImageServiceImpl implements IImageService {
         }
 
         try {
-            List<Post> linkedPosts = postDAO.getByImage(image);
+            List<Post> linkedPosts = postDAO.getByImage(image, user);
             List<PostUpdater> postUpdaters = postUpdaterDAO.getByUser(dto.getCookieUser());
 
             if (!linkedPosts.isEmpty() && linkedPosts.stream().noneMatch(post -> post.isPosted() ||
