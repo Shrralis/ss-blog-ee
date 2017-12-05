@@ -30,7 +30,7 @@ public class UserDAOTest {
     @DataProvider
     public static Object[] dataForAddUserAndGetSameAddedUser() {
         return new User[]{
-                new User.Builder()
+                User.Builder.anUser()
                         .setLogin("test1")
                         .setPassword("test1")
                         .setScope(User.Scope.WRITER)
@@ -41,15 +41,15 @@ public class UserDAOTest {
     @DataProvider
     public static Object[] dataForAddWrongUserAndGetSQLException() {
         return new User[]{
-                new User.Builder()
+                User.Builder.anUser()
                         .setLogin("test1")
                         .setScope(User.Scope.WRITER)
                         .build(),
-                new User.Builder()
+                User.Builder.anUser()
                         .setPassword("test1")
                         .setScope(User.Scope.WRITER)
                         .build(),
-                new User.Builder()
+                User.Builder.anUser()
                         .setLogin("test1")
                         .setPassword("test1")
                         .build(),
@@ -59,7 +59,7 @@ public class UserDAOTest {
     @DataProvider
     public static Object[] dataForDeleteUserByLoginWithoutExceptions() {
         return new User[]{
-                new User.Builder()
+                User.Builder.anUser()
                         .setLogin("test1")
                         .build()
         };
