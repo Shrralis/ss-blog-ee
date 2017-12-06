@@ -16,7 +16,6 @@
 with next command: `psql -U postgres ss_blog < dump.sql`
 1. Edit database properties like host, port, database name, database user and database password
 at _PROJECT_DIR/src/main/java/com/shrralis/ssblog/config/DatabaseConfig_.
-<br />
     * Default values are:
         - host: `localhost`,
         - port: `5432`,
