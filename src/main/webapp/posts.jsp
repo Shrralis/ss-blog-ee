@@ -37,7 +37,7 @@
 
                         <div class="post-body">
                             <h1 class="post-header">
-                                <a href="${ctx}/post?id=${post.getId()}">
+                                <a href="${ctx}/post?id=${post.id}">
                                     <c:out value="${post.getTitle()}"/>
                                 </a>
                             </h1>

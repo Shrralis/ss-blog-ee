@@ -1,8 +1,8 @@
 package com.shrralis.ssblog.filter;
 
 import com.google.gson.*;
-import com.shrralis.ssblog.dao.UserJdbcDAOImpl;
 import com.shrralis.ssblog.dao.interfaces.IUserDAO;
+import com.shrralis.ssblog.dao.jdbc.UserJdbcDAOImpl;
 import com.shrralis.ssblog.entity.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

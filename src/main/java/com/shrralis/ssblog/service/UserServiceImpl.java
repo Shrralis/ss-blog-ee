@@ -1,7 +1,7 @@
 package com.shrralis.ssblog.service;
 
-import com.shrralis.ssblog.dao.UserJdbcDAOImpl;
 import com.shrralis.ssblog.dao.interfaces.IUserDAO;
+import com.shrralis.ssblog.dao.mybatis.UserMyBatisDAOImpl;
 import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.interfaces.IUserService;
 import com.shrralis.tools.SecurityTool;
@@ -20,7 +20,7 @@ public class UserServiceImpl implements IUserService {
     private IUserDAO dao;
 
     public UserServiceImpl() throws ClassNotFoundException, SQLException {
-        dao = UserJdbcDAOImpl.getDao();
+        dao = UserMyBatisDAOImpl.getDao();
     }
 
     @Override

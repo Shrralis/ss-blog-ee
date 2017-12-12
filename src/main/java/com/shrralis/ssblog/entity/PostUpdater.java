@@ -1,5 +1,8 @@
 package com.shrralis.ssblog.entity;
 
+import org.apache.ibatis.type.Alias;
+
+@Alias("post_updater")
 public class PostUpdater {
     private User user;
     private Post post;

@@ -1,4 +1,4 @@
-package com.shrralis.ssblog.dao;
+package com.shrralis.ssblog.dao.jdbc;
 
 import com.shrralis.ssblog.dao.base.JdbcBasedDAO;
 import com.shrralis.ssblog.dao.interfaces.IUserDAO;
@@ -12,11 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserJdbcDAOImpl extends JdbcBasedDAO implements IUserDAO {
-    private static final String ID_COLUMN_NAME = "id";
-    private static final String LOGIN_COLUMN_NAME = "login";
-    private static final String PASS_COLUMN_NAME = "password";
-    private static final String SCOPE_COLUMN_NAME = "scope";
-
     private static UserJdbcDAOImpl dao;
 
     private UserJdbcDAOImpl() throws ClassNotFoundException, SQLException {
@@ -136,9 +131,11 @@ public class UserJdbcDAOImpl extends JdbcBasedDAO implements IUserDAO {
     }
 
     @Override
-    public User getByScope(User.Scope scope, boolean withPassword) throws SQLException {
+    public List<User> getByScope(User.Scope scope, boolean withPassword) throws SQLException {
+        ArrayList<User> result = new ArrayList<>();
+
         if (scope == null) {
-            return null;
+            return result;
         }
 
         PreparedStatement preparedStatement = getConnection()
@@ -148,14 +145,14 @@ public class UserJdbcDAOImpl extends JdbcBasedDAO implements IUserDAO {
 
         ResultSet resultSet = preparedStatement.executeQuery();
 
-        if (resultSet.next()) {
-            return User.Builder.anUser()
+        while (resultSet.next()) {
+            result.add(User.Builder.anUser()
                     .setId(resultSet.getInt(ID_COLUMN_NAME))
                     .setLogin(resultSet.getString(LOGIN_COLUMN_NAME))
                     .setPassword(withPassword ? resultSet.getString(PASS_COLUMN_NAME) : null)
                     .setScope(User.Scope.get(resultSet.getString(SCOPE_COLUMN_NAME)))
-                    .build();
+                    .build());
         }
-        return null;
+        return result;
     }
 }

@@ -6,6 +6,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface IUserDAO {
+    String ID_COLUMN_NAME = "id";
+    String LOGIN_COLUMN_NAME = "login";
+    String PASS_COLUMN_NAME = "password";
+    String SCOPE_COLUMN_NAME = "scope";
+
     User add(User user) throws SQLException;
 
     void delete(User user) throws SQLException;
@@ -18,5 +23,5 @@ public interface IUserDAO {
 
     User getByLogin(String login, boolean withPassword) throws SQLException;
 
-    User getByScope(User.Scope scope, boolean withPassword) throws SQLException;
+    List<User> getByScope(User.Scope scope, boolean withPassword) throws SQLException;
 }

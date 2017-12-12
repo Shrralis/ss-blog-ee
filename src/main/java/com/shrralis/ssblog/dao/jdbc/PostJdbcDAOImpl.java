@@ -1,4 +1,4 @@
-package com.shrralis.ssblog.dao;
+package com.shrralis.ssblog.dao.jdbc;
 
 import com.shrralis.ssblog.dao.base.JdbcBasedDAO;
 import com.shrralis.ssblog.dao.interfaces.IPostDAO;
@@ -11,16 +11,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.shrralis.ssblog.dao.interfaces.IPostUpdaterDAO.POST_ID_COLUMN_NAME;
+import static com.shrralis.ssblog.dao.interfaces.IPostUpdaterDAO.USER_ID_COLUMN_NAME;
+
 public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
-    private static final String ID_COLUMN_NAME = "id";
-    private static final String TITLE_COLUMN_NAME = "title";
-    private static final String DESCRIPTION_COLUMN_NAME = "description";
-    private static final String TEXT_COLUMN_NAME = "text";
-    private static final String IS_POSTED_COLUMN_NAME = "is_posted";
-    private static final String CREATOR_ID_COLUMN_NAME = "creator_id";
-    private static final String CREATED_AT_COLUMN_NAME = "created_at";
-    private static final String UPDATED_AT_COLUMN_NAME = "updated_at";
-    private static final String IMAGE_ID_COLUMN_NAME = "image_id";
 
     private static PostJdbcDAOImpl dao;
 
@@ -69,8 +63,42 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
     }
 
     @Override
-    public Integer countPosts() throws SQLException {
-        ResultSet resultSet = getConnection().createStatement().executeQuery("SELECT COUNT(*) AS count FROM posts");
+    public Integer countPosts(User requester) throws SQLException {
+        PreparedStatement preparedStatement = getConnection()
+                .prepareStatement("SELECT COUNT(*) FROM (SELECT p.* FROM posts p LEFT JOIN posts_updaters ON " +
+                        POST_ID_COLUMN_NAME + " = p." + ID_COLUMN_NAME + " WHERE " + IS_POSTED_COLUMN_NAME +
+                        " = TRUE OR " + CREATOR_ID_COLUMN_NAME + " = ? OR " + USER_ID_COLUMN_NAME +
+                        " = ? GROUP BY p." + ID_COLUMN_NAME + ") AS count");
+
+        preparedStatement.setInt(1, requester.getId());
+        preparedStatement.setInt(2, requester.getId());
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        if (resultSet != null && resultSet.next()) {
+            return resultSet.getInt(1);
+        }
+        return null;
+    }
+
+    @Override
+    public Integer countPosts(String substring, User requester) throws SQLException {
+        PreparedStatement preparedStatement = getConnection()
+                .prepareStatement("SELECT COUNT(*) FROM (SELECT p.* FROM posts p LEFT JOIN posts_updaters ON " +
+                        POST_ID_COLUMN_NAME + " = p." + ID_COLUMN_NAME + " WHERE (" + IS_POSTED_COLUMN_NAME +
+                        " = TRUE OR " + CREATOR_ID_COLUMN_NAME + " = ? OR " + USER_ID_COLUMN_NAME +
+                        " = ?) AND (LOWER(" + TITLE_COLUMN_NAME +
+                        ") LIKE LOWER('%' || ? || '%') OR LOWER(" + DESCRIPTION_COLUMN_NAME +
+                        ") LIKE LOWER ('%' || ? || '%') OR LOWER(" + TEXT_COLUMN_NAME +
+                        ") LIKE LOWER('%' || ? || '%')) GROUP BY p." + ID_COLUMN_NAME + ") AS count");
+
+        preparedStatement.setInt(1, requester.getId());
+        preparedStatement.setInt(2, requester.getId());
+        preparedStatement.setString(3, substring);
+        preparedStatement.setString(4, substring);
+        preparedStatement.setString(5, substring);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
 
         if (resultSet != null && resultSet.next()) {
             return resultSet.getInt(1);
@@ -116,7 +144,8 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
     }
 
     @Override
-    public List<Post> getAllPosts(Integer count, Integer offset, User requester) throws ClassNotFoundException, SQLException {
+    public List<Post> getAllPosts(Integer count, Integer offset, User requester)
+            throws ClassNotFoundException, SQLException {
         ArrayList<Post> result = new ArrayList<>();
         PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("SELECT * FROM posts LEFT JOIN posts_updaters ON " +
@@ -157,7 +186,8 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
     }
 
     @Override
-    public List<Post> getByCreator(User creator, Integer count, Integer offset, User requester) throws ClassNotFoundException, SQLException {
+    public List<Post> getByCreator(User creator, Integer count, Integer offset, User requester)
+            throws ClassNotFoundException, SQLException {
         ArrayList<Post> result = new ArrayList<>();
 
         if (creator == null) {
@@ -257,12 +287,13 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
     }
 
     @Override
-    public List<Post> getByImage(Image image, User requester) throws ClassNotFoundException, SQLException {
+    public List<Post> getByImage(Image image, Integer count, Integer offset, User requester)
+            throws ClassNotFoundException, SQLException {
         ArrayList<Post> result = new ArrayList<>();
         PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("SELECT * FROM posts LEFT JOIN posts_updaters ON " +
                         "posts_updaters.post_id = posts.id WHERE image_id = ? AND " +
-                        "(is_posted = TRUE OR creator_id = ? OR user_id = ?)");
+                        "(is_posted = TRUE OR creator_id = ? OR user_id = ?) ORDER BY created_at DESC LIMIT ? OFFSET ?");
 
         if (image == null) {
             return result;
@@ -270,6 +301,18 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
         preparedStatement.setInt(1, image.getId());
         preparedStatement.setInt(2, requester.getId());
         preparedStatement.setInt(3, requester.getId());
+
+        if (count == null) {
+            preparedStatement.setNull(4, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(4, count);
+        }
+
+        if (offset == null) {
+            preparedStatement.setNull(5, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(5, offset);
+        }
 
         ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -290,16 +333,29 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
     }
 
     @Override
-    public List<Post> getByIsPosted(boolean isPosted, User requester) throws ClassNotFoundException, SQLException {
+    public List<Post> getByIsPosted(boolean isPosted, Integer count, Integer offset, User requester)
+            throws ClassNotFoundException, SQLException {
         ArrayList<Post> result = new ArrayList<>();
         PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("SELECT * FROM posts LEFT JOIN posts_updaters ON " +
                         "posts_updaters.post_id = posts.id WHERE is_posted = ? AND " +
-                        "(is_posted = TRUE OR creator_id = ? OR user_id = ?)");
+                        "(is_posted = TRUE OR creator_id = ? OR user_id = ?) ORDER BY created_at DESC LIMIT ? OFFSET ?");
 
         preparedStatement.setBoolean(1, isPosted);
         preparedStatement.setInt(2, requester.getId());
         preparedStatement.setInt(3, requester.getId());
+
+        if (count == null) {
+            preparedStatement.setNull(4, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(4, count);
+        }
+
+        if (offset == null) {
+            preparedStatement.setNull(5, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(5, offset);
+        }
 
         ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -366,16 +422,28 @@ public class PostJdbcDAOImpl extends JdbcBasedDAO implements IPostDAO {
     }
 
     @Override
-    public List<Post> getByTitle(String title, User requester) throws ClassNotFoundException, SQLException {
+    public List<Post> getByTitle(String title, Integer count, Integer offset, User requester) throws ClassNotFoundException, SQLException {
         ArrayList<Post> result = new ArrayList<>();
         PreparedStatement preparedStatement = getConnection()
                 .prepareStatement("SELECT * FROM posts LEFT JOIN posts_updaters ON " +
                         "posts_updaters.post_id = posts.id WHERE title LIKE ? AND " +
-                        "(is_posted = TRUE OR creator_id = ? OR user_id = ?)");
+                        "(is_posted = TRUE OR creator_id = ? OR user_id = ?) ORDER BY created_at DESC LIMIT ? OFFSET ?");
 
         preparedStatement.setString(1, title);
         preparedStatement.setInt(2, requester.getId());
         preparedStatement.setInt(3, requester.getId());
+
+        if (count == null) {
+            preparedStatement.setNull(4, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(4, count);
+        }
+
+        if (offset == null) {
+            preparedStatement.setNull(5, Types.INTEGER);
+        } else {
+            preparedStatement.setInt(5, offset);
+        }
 
         ResultSet resultSet = preparedStatement.executeQuery();
 

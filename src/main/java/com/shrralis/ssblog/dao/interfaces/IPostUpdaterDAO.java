@@ -8,6 +8,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface IPostUpdaterDAO {
+    String POST_ID_COLUMN_NAME = "post_id";
+    String USER_ID_COLUMN_NAME = "user_id";
+
     PostUpdater add(PostUpdater postUpdater) throws SQLException;
 
     void delete(PostUpdater postUpdater) throws SQLException;

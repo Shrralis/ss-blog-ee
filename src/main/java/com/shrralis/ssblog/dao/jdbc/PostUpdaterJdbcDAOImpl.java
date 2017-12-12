@@ -1,4 +1,4 @@
-package com.shrralis.ssblog.dao;
+package com.shrralis.ssblog.dao.jdbc;
 
 import com.shrralis.ssblog.dao.base.JdbcBasedDAO;
 import com.shrralis.ssblog.dao.interfaces.IPostUpdaterDAO;
@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PostUpdaterJdbcDAOImpl extends JdbcBasedDAO implements IPostUpdaterDAO {
-    private static final String POST_ID_COLUMN_NAME = "post_id";
-    private static final String USER_ID_COLUMN_NAME = "user_id";
 
     private static PostUpdaterJdbcDAOImpl dao;
 

@@ -1,5 +1,8 @@
 package com.shrralis.ssblog.entity;
 
+import org.apache.ibatis.type.Alias;
+
+@Alias("user")
 public class User {
     private Integer id;
     private String login;
@@ -65,11 +68,6 @@ public class User {
                 }
             }
             return result;
-        }
-
-        @Override
-        public String toString() {
-            return super.toString();
         }
     }
 

@@ -1,13 +1,13 @@
 package com.shrralis.ssblog.service;
 
-import com.shrralis.ssblog.dao.ImageJdbcDAOImpl;
-import com.shrralis.ssblog.dao.PostJdbcDAOImpl;
-import com.shrralis.ssblog.dao.PostUpdaterJdbcDAOImpl;
-import com.shrralis.ssblog.dao.UserJdbcDAOImpl;
 import com.shrralis.ssblog.dao.interfaces.IImageDAO;
 import com.shrralis.ssblog.dao.interfaces.IPostDAO;
 import com.shrralis.ssblog.dao.interfaces.IPostUpdaterDAO;
 import com.shrralis.ssblog.dao.interfaces.IUserDAO;
+import com.shrralis.ssblog.dao.mybatis.ImageMyBatisDAOImpl;
+import com.shrralis.ssblog.dao.mybatis.PostMyBatisDAOImpl;
+import com.shrralis.ssblog.dao.mybatis.PostUpdaterMyBatisDAOImpl;
+import com.shrralis.ssblog.dao.mybatis.UserMyBatisDAOImpl;
 import com.shrralis.ssblog.dto.*;
 import com.shrralis.ssblog.entity.Image;
 import com.shrralis.ssblog.entity.Post;
@@ -34,10 +34,10 @@ public class PostServiceImpl implements IPostService {
     private IImageDAO imageDAO;
 
     public PostServiceImpl() throws ClassNotFoundException, SQLException {
-        dao = PostJdbcDAOImpl.getDao();
-        postUpdaterDAO = PostUpdaterJdbcDAOImpl.getDao();
-        userDAO = UserJdbcDAOImpl.getDao();
-        imageDAO = ImageJdbcDAOImpl.getDao();
+        dao = PostMyBatisDAOImpl.getDao();
+        postUpdaterDAO = PostUpdaterMyBatisDAOImpl.getDao();
+        userDAO = UserMyBatisDAOImpl.getDao();
+        imageDAO = ImageMyBatisDAOImpl.getDao();
     }
 
     @Override
@@ -320,17 +320,9 @@ public class PostServiceImpl implements IPostService {
                     !user.getPassword().equals(dto.getCookieUser().getPassword())) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
-
-            List<Post> posts = dao.getAllPosts(null, null, user);
-            List<PostUpdater> postUpdaters = postUpdaterDAO.getByUser(user);
-            Long redundantCount = posts.stream()
-                    .filter(p -> !p.isPosted() && !p.getCreator().getId().equals(user.getId()) &&
-                            postUpdaters.stream().noneMatch(pu -> p.getId().equals(pu.getPost().getId())))
-                    .count();
-
             return JsonResponse.Builder.aJsonResponse()
                     .setData(dao.getAllPosts(dto.getCount(), dto.getOffset(), user))
-                    .setCount(posts.size() - redundantCount.intValue())
+                    .setCount(dao.countPosts(dto.getCookieUser()))
                     .build();
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with getting all posts!", e);
@@ -358,17 +350,9 @@ public class PostServiceImpl implements IPostService {
             if (creator == null) {
                 return new JsonResponse(JsonError.Error.USER_NOT_EXISTS);
             }
-
-            List<Post> posts = dao.getByCreator(creator, null, null, requester);
-            List<PostUpdater> postUpdaters = postUpdaterDAO.getByUser(requester);
-            Long redundantCount = posts.stream()
-                    .filter(p -> !p.isPosted() && !p.getCreator().getId().equals(requester.getId()) &&
-                            postUpdaters.stream().noneMatch(pu -> p.getId().equals(pu.getPost().getId())))
-                    .count();
-
             return JsonResponse.Builder.aJsonResponse()
                     .setData(dao.getByCreator(creator, dto.getCount(), dto.getOffset(), requester))
-                    .setCount(posts.size() - redundantCount.intValue())
+                    .setCount(dao.countPosts(dto.getCookieUser()))
                     .build();
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with getting all posts!", e);
@@ -473,17 +457,9 @@ public class PostServiceImpl implements IPostService {
                     !user.getPassword().equals(dto.getCookieUser().getPassword())) {
                 return new JsonResponse(JsonError.Error.NO_ACCESS);
             }
-
-            List<Post> posts = dao.getBySubstring(dto.getSubstring(), null, null, user);
-            List<PostUpdater> postUpdaters = postUpdaterDAO.getByUser(user);
-            Long redundantCount = posts.stream()
-                    .filter(p -> !p.isPosted() && !p.getCreator().getId().equals(user.getId()) &&
-                            postUpdaters.stream().noneMatch(pu -> p.getId().equals(pu.getPost().getId())))
-                    .count();
-
             return JsonResponse.Builder.aJsonResponse()
                     .setData(dao.getBySubstring(dto.getSubstring(), dto.getCount(), dto.getOffset(), user))
-                    .setCount(posts.size() - redundantCount.intValue())
+                    .setCount(dao.countPosts(dto.getSubstring(), dto.getCookieUser()))
                     .build();
         } catch (ClassNotFoundException | SQLException e) {
             logger.debug("Exception with getting all posts!", e);

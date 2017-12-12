@@ -1,5 +1,8 @@
 package com.shrralis.ssblog.entity;
 
+import org.apache.ibatis.type.Alias;
+
+@Alias("image")
 public class Image {
     private Integer id;
     private String src;

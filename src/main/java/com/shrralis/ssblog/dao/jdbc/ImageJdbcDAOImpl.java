@@ -1,4 +1,4 @@
-package com.shrralis.ssblog.dao;
+package com.shrralis.ssblog.dao.jdbc;
 
 import com.shrralis.ssblog.dao.base.JdbcBasedDAO;
 import com.shrralis.ssblog.dao.interfaces.IImageDAO;
@@ -10,8 +10,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class ImageJdbcDAOImpl extends JdbcBasedDAO implements IImageDAO {
-    private static final String ID_COLUMN_NAME = "id";
-    private static final String SRC_COLUMN_NAME = "src";
 
     private static ImageJdbcDAOImpl dao;
 

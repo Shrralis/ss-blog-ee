@@ -1,7 +1,10 @@
 package com.shrralis.ssblog.entity;
 
+import org.apache.ibatis.type.Alias;
+
 import java.time.LocalDateTime;
 
+@Alias("post")
 public class Post {
     private Integer id;
     private String title;

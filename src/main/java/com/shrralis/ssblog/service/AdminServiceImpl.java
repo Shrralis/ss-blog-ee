@@ -1,7 +1,7 @@
 package com.shrralis.ssblog.service;
 
-import com.shrralis.ssblog.dao.UserJdbcDAOImpl;
 import com.shrralis.ssblog.dao.interfaces.IUserDAO;
+import com.shrralis.ssblog.dao.mybatis.UserMyBatisDAOImpl;
 import com.shrralis.ssblog.dto.SetUserScopeDTO;
 import com.shrralis.ssblog.entity.User;
 import com.shrralis.ssblog.service.interfaces.IAdminService;
@@ -17,7 +17,7 @@ public class AdminServiceImpl implements IAdminService {
     private IUserDAO userDAO;
 
     public AdminServiceImpl() throws ClassNotFoundException, SQLException {
-        userDAO = UserJdbcDAOImpl.getDao();
+        userDAO = UserMyBatisDAOImpl.getDao();
     }
 
     @Override
